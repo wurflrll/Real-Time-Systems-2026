@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bitmap Sequence Player</title>
+  <style>
+    canvas {
+    border: 2px solid black;
+    width: 1920;
+    height: 816
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="render_canvas" width="640" height="360"></canvas>
+
+<br>
+<select name="video_list" id="video_choice">
+  <option value="video_1">Video 1</option>
+  <option value="video_2">Video 2</option>
+  <option value="video_3">Video 3</option>
+  <option value="video_4">Video 4</option>
+</select>
+<input type="text" id="minute">:<input type="text" id="second">
+<input type="submit" value="fetch_video" id="submit_button">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/pako@2/dist/pako.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

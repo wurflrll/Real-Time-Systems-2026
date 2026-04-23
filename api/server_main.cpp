@@ -1,0 +1,56 @@
+
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+
+#include "cpp-httplib/httplib.h"
+
+#include <ctime>
+#include <string>
+#include <iostream>
+
+
+typedef struct { 
+    uint32_t start_second;
+    uint32_t end_second;
+    uint32_t movie_index;
+} Request;
+
+int main() {
+
+
+    srand(time(NULL));
+
+    httplib::Server svr;
+
+    svr.Options(R"(/.*)", [](const httplib::Request &req, httplib::Response &res) {
+        res.set_header("Access-Control-Allow-Origin", "http://davidrice.site"); // your website origin
+        res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+        res.set_content("", "text/plain");
+    });
+
+    svr.Post("/start", [](const httplib::Request& req, httplib::Response& res) {
+        
+        auto name = req.get_param_value("name");
+
+        std::cout << "THE NAME IS: " << name << "\n";
+
+        name += std::to_string(rand() % 10000);
+
+        res.set_header("Access-Control-Allow-Origin", "http://davidrice.site");
+        res.set_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.set_header("Access-Control-Allow-Headers", "Content-Type");
+
+        res.set_content("Hello World! " + name, "text/plain");
+    });
+
+    svr.WebSocket("/ws", [](const httplib::Request &req, httplib::ws::WebSocket &ws) {
+        std::string msg;
+        ws.send("Hey man!");
+    });
+
+    // svr.Get("/ws", [](const httplib::Request&, httplib::Response& res) {
+    //     res.set_content("hit ws as http", "text/plain");
+    // });
+
+    svr.listen("0.0.0.0", 8080);
+}
