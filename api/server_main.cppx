@@ -8,12 +8,6 @@
 #include <iostream>
 
 
-typedef struct { 
-    uint32_t start_second;
-    uint32_t end_second;
-    uint32_t movie_index;
-} Request;
-
 int main() {
 
 

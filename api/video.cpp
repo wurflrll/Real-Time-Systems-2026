@@ -1,71 +1,29 @@
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libswscale/swscale.h>
-#include <libavutil/imgutils.h>
+#include "video.h"
+
+
+void VideoBuffer::AllocateFrames(uint32_t number_frames) { 
+    for (int i = 0; i < number_frames; ++i) {
+        uint8_t* ptr = (uint8_t*) malloc(frame_size);
+        if (ptr == NULL) { 
+            std::cout << "ran out of memory\n";
+        }
+        frame_buffers.push_back(ptr);
+    }
 }
 
-#include <iostream>
-#include <vector>
-#include <cstring>
+bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
 
+    avformat_network_init();
 
-
-
-struct FrameBuffer {
-    uint32_t start_frame;
-    uint32_t end_frame;
-    std::vector<uint8_t> buffer;
-};
-
-typedef std::vector<FrameBuffer> FrameQueue;
-
-
-
-class VideoFormat {
-
-
-    private:
-
-        AVFormatContext* fmtCtx = nullptr;
-        AVCodecParameters* codecpar;
-        AVCodecContext* codecCtx;
-
-        AVPacket* pkt = av_packet_alloc();
-        AVFrame* frame = av_frame_alloc();
-        AVFrame* rgbFrame = av_frame_alloc();
-
-        int height;
-        int width;
-
-        FrameQueue frame_queue;
-
-        uint32_t start_frame;
-        uint32_t end_frame;
-        uint32_t frame_size;
-
-    public:
-
-    VideoFormat() {}
-
-    bool InitialRead(char* filename, int start_second, int end_second);
-
-    uint32_t GetTotalFrames();
-
-    bool ProcessFrames(int number_frames);
-
-    void AddHeader(uint8_t* buffer_ptr);
-};
-
-
-
-
-bool VideoFormat::InitialRead(char* filename, int start_second, int end_second) {
-    
-    vformat_network_init();
-
-    AVFormatContext* fmtCtx = nullptr;
-    avformat_open_input(&fmtCtx, filename, nullptr, nullptr);
+    fmtCtx = nullptr;
+    if (avformat_open_input(&fmtCtx, filename, nullptr, nullptr) < 0) {
+        std::cout << "file read failed in lib\n";
+        return false;
+    };
+    if (fmtCtx == nullptr) {
+        std::cout << "fmtCtx couldn't be allocated\n";
+        return false;
+    }
     avformat_find_stream_info(fmtCtx, nullptr);
 
     int videoStream = -1;
@@ -89,13 +47,18 @@ bool VideoFormat::InitialRead(char* filename, int start_second, int end_second) 
     width = codecCtx->width;
     height = codecCtx->height;
 
+    frame_size = height * width * 3 + 54;
+
+    std::cout << "WIDTH: " << width << "\n";
+    std::cout << "HEIGHT: " << height << "\n";
+
     int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1);
-    uint8_t* buffer = (uint8_t*)av_malloc(numBytes);
+    uint8_t* buffer = (uint8_t*) av_malloc(numBytes);
 
     av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, buffer,
                          AV_PIX_FMT_RGB24, width, height, 1);
 
-    SwsContext* swsCtx = sws_getContext(
+    swsCtx = sws_getContext(
         width, height, codecCtx->pix_fmt,
         width, height, AV_PIX_FMT_RGB24,
         SWS_BILINEAR, nullptr, nullptr, nullptr
@@ -103,26 +66,33 @@ bool VideoFormat::InitialRead(char* filename, int start_second, int end_second) 
 
 
     AVRational time_base = fmtCtx->streams[videoStream]->time_base;
-    int64_t initial_timestamp = 73 / av_q2d(time_base);
-    // ---- SEEK TO 73 SECONDS ----
-    int64_t timestamp = 73 * AV_TIME_BASE;
+
+
+    std::cout << "START SECOND: " << start_second << "\n";
+
+    int64_t initial_timestamp = av_rescale_q(
+        start_second,
+        (AVRational){1, 1},
+        fmtCtx->streams[videoStream]->time_base
+    );
     std::cout << "av_seek status: " << av_seek_frame(fmtCtx, videoStream, initial_timestamp, AVSEEK_FLAG_BACKWARD);
-    
-    
+   
+    avcodec_flush_buffers(codecCtx);
+
+    avformat_flush(fmtCtx);
+
     return true;
 }
     
-bool VideoFormat::ProcessFrames(int number_frames) {
-    
+bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer) {
 
-    int frame_size = 54 + 3 * width * height;
-    FrameBuffer new_buffer;
-    new_buffer.buffer.reserve(number_frames * frame_size);
-
-    new_buffer.start_frame = frame_queue[frame_queue.size() - 1].end_frame + 1;
-    new_buffer.end_frame = new_buffer.start_frame + number_frames - 1;
-
-    uint8_t buffer_ptr = new_buffer.buffer.data();
+    int videoStream = -1;
+    for (unsigned i = 0; i < fmtCtx->nb_streams; i++) {
+        if (fmtCtx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            videoStream = i;
+            break;
+        }
+    }
 
     int frame_count = 0;
     while (true) {
@@ -135,14 +105,16 @@ bool VideoFormat::ProcessFrames(int number_frames) {
             }
             return true;
         }
-
-        std::cout << "start of a loop!\n";
+        
         if (pkt->stream_index == videoStream) {
             avcodec_send_packet(codecCtx, pkt);
             while (avcodec_receive_frame(codecCtx, frame) == 0) {
 
+                // allocate a new buffer here:
+                
+                std::cout << "line size: " << rgbFrame->linesize[0] << "\n";
 
-                sws_scale(
+                int scale_ret = sws_scale(
                     swsCtx,
                     frame->data,
                     frame->linesize,
@@ -152,16 +124,29 @@ bool VideoFormat::ProcessFrames(int number_frames) {
                     rgbFrame->linesize
                 );
 
+                if (scale_ret < 0) { 
+                    std::cout << "sws failed\n";
+                    return false;
+                }
+            
 
-                memcpy((void*) (buffer_ptr + 54), rgbFrame->data[0], frame_size - 54);
+                uint32_t byte_location = 54; // 54 is the header size
 
-                AddHeader(buffer_ptr);
+                for (int y = height - 1; y >= 0; y--) {
+                    //fwrite(rgbFrame->data[0] + y * rgbFrame->linesize[0], 1, width * 3, f);
+                    memcpy(video_buffer.frame_buffers[frame_count] + byte_location, rgbFrame->data[0] + y * rgbFrame->linesize[0], width * 3);
+                    byte_location += width * 3;
+                }
+
+                AddHeader(video_buffer.frame_buffers[frame_count]);
                
                 ++frame_count;
-                if (frame_count > number_frames) {
+                if (frame_count >= number_frames) {
+                    av_packet_unref(pkt);
                     return true;
                 }
-            } // potential issue seeing a frame and not using it
+            } 
+            // DON'T KNOW WHAT THIS MEANS: // potential issue seeing a frame and not using it
         }
         av_packet_unref(pkt);
     }
@@ -169,17 +154,19 @@ bool VideoFormat::ProcessFrames(int number_frames) {
 
 
 uint32_t VideoFormat::GetTotalFrames() {
-    return (end_frame - start_frame) + 1;
+    return 24;
 }
 
 
 void VideoFormat::AddHeader(uint8_t* buffer_ptr) {
+
+    int file_size = 54 + 3 * width * height;
     unsigned char bmpfileheader[14] = {
         'B','M',
-        (unsigned char)(filesize),
-        (unsigned char)(filesize >> 8),
-        (unsigned char)(filesize >> 16),
-        (unsigned char)(filesize >> 24),
+        (unsigned char)(file_size),
+        (unsigned char)(file_size >> 8),
+        (unsigned char)(file_size >> 16),
+        (unsigned char)(file_size >> 24),
         0,0,0,0,
         54,0,0,0
     };
@@ -199,5 +186,5 @@ void VideoFormat::AddHeader(uint8_t* buffer_ptr) {
     };
 
     memcpy(buffer_ptr, (uint8_t*) bmpfileheader, 14);
-    memcpy(buffer_ptr, (uint8_t*) bmpfileheader, 40);
+    memcpy(buffer_ptr + 14, (uint8_t*) bmpinfoheader, 40);
 }

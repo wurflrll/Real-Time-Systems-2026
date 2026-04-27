@@ -48,7 +48,6 @@ static void save_bmp(const std::string& filename, AVFrame* rgbFrame, int width, 
     for (int y = height - 1; y >= 0; y--) {
         fwrite(rgbFrame->data[0] + y * rgbFrame->linesize[0], 1, width * 3, f);
     }
-
     fclose(f);
 }
 
