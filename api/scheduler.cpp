@@ -56,15 +56,16 @@ void Connection::InitialWork() {
 }
 
 void Connection::SendBuffer() {
-    for (uint8_t* frame_ptr : video_buffer.frame_buffers) {
-        socket->send(reinterpret_cast<const char*>(frame_ptr), video_buffer.frame_size);
+    for (Frame& frame : video_buffer.frame_buffers) {
+        //socket->send(reinterpret_cast<const char*>(frame_ptr), video_buffer.frame_size);
+        socket->send(reinterpret_cast<const char*>(frame.data()), frame.size());
     }
 }
 
 void Connection::ClearBuffer() {
-    for (auto vec : video_buffer.frame_buffers) {
-        free(vec);
-    }
+    // for (auto vec : video_buffer.frame_buffers) {
+    //     free(vec);
+    // }
 }
 
 

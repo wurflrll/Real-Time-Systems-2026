@@ -1,14 +1,14 @@
 #include "video.h"
 
-
 void VideoBuffer::AllocateFrames(uint32_t number_frames) { 
-    for (int i = 0; i < number_frames; ++i) {
-        uint8_t* ptr = (uint8_t*) malloc(frame_size);
-        if (ptr == NULL) { 
-            std::cout << "ran out of memory\n";
-        }
-        frame_buffers.push_back(ptr);
-    }
+    // for (int i = 0; i < number_frames; ++i) {
+    //     uint8_t* ptr = (uint8_t*) malloc(frame_size);
+    //     if (ptr == NULL) { 
+    //         std::cout << "ran out of memory\n";
+    //     }
+    //     frame_buffers.push_back(ptr);
+    // }
+
 }
 
 bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
@@ -94,6 +94,10 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
         }
     }
 
+    uint8_t* one_time_buffer = (uint8_t*) malloc(frame_size);
+
+    video_buffer.frame_buffers.resize(number_frames);
+
     int frame_count = 0;
     while (true) {
 
@@ -101,14 +105,19 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
         if (result < 0) {
             if (frame_count != number_frames) {
                 std::cout << "A request has failed\n";
+                free(one_time_buffer);
                 return false;
             }
             return true;
         }
+
+        // PRIMARY buffer with one allocation before compression:
         
         if (pkt->stream_index == videoStream) {
             avcodec_send_packet(codecCtx, pkt);
             while (avcodec_receive_frame(codecCtx, frame) == 0) {
+
+                uint8_t* buffer_ptr = one_time_buffer;
 
                 // allocate a new buffer here:
                 
@@ -126,23 +135,28 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
 
                 if (scale_ret < 0) { 
                     std::cout << "sws failed\n";
+                    free(one_time_buffer);
                     return false;
                 }
             
-
                 uint32_t byte_location = 54; // 54 is the header size
 
                 for (int y = height - 1; y >= 0; y--) {
-                    //fwrite(rgbFrame->data[0] + y * rgbFrame->linesize[0], 1, width * 3, f);
-                    memcpy(video_buffer.frame_buffers[frame_count] + byte_location, rgbFrame->data[0] + y * rgbFrame->linesize[0], width * 3);
+                    //memcpy(video_buffer.frame_buffers[frame_count] + byte_location, rgbFrame->data[0] + y * rgbFrame->linesize[0], width * 3);
+                    memcpy(buffer_ptr + byte_location, rgbFrame->data[0] + y * rgbFrame->linesize[0], width * 3);
                     byte_location += width * 3;
-                }
+                }            
 
-                AddHeader(video_buffer.frame_buffers[frame_count]);
-               
+                AddHeader(buffer_ptr);
+                
+                video_buffer.frame_buffers[frame_count] = compressBuffer(buffer_ptr, frame_size);
+
+
+
                 ++frame_count;
                 if (frame_count >= number_frames) {
                     av_packet_unref(pkt);
+                    free(one_time_buffer);
                     return true;
                 }
             } 

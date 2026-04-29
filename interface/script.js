@@ -8,28 +8,61 @@ submit_button.addEventListener("click", Start_Stream);
 
 
 
-function Start_Stream() {
+async function Start_Stream() {
+
+
+  let second = document.getElementById("second").value;
+  let done_sending = false;
+  let counter = 0;
+
+
   let socket = new WebSocket ( "ws://187.124.174.169:8080/ws" );
   socket.binaryType = "blob";
-  
 
 
-  socket.addEventListener("open", () => {
+  socket.addEventListener("open", async () => {
 
 
-    let arr = new Uint32Array([document.getElementById("second").value, 73, 1]);
+    let arr = new Uint32Array([second, 73, 1]);
     socket.send(arr.buffer);
     socket.send("Header end.");
 
+    while (true) {
+
+
+      while (!done_sending) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+      second = second + 1;
+
+      arr = new Uint32Array([second, 73, 1]);
+      socket.send(arr.buffer);
+      socket.send("Header end.");
+
+      done_sending = false;
+      counter = 0;
+
+
+    }
+
   });
 
-  socket.addEventListener("message", (e) => {
+  socket.addEventListener("message", async (event) => {
     //log(`RECEIVED: ${e.data}: ${counter}`);
 
     if (event.data instanceof Blob) {
     
       console.log("We have a blob!");
-      const blob = new Blob([e.data], { type: "image/bmp" });
+      // const ds = new DecompressionStream("deflate-raw");
+      // const stream = event.data.stream().pipeThrough(ds);
+      // const response = await new Response(stream);
+      // const decompressed_blob = await response.blob();
+
+      //const blob = new Blob([e.data], { type: "image/bmp" });
+
+      const buffer = new Uint8Array(await event.data.arrayBuffer());
+      const decompressed = pako.inflate(buffer);
+      const blob = new Blob([decompressed], { type: "image/bmp" });
       
       console.log(blob.size);
 
@@ -45,6 +78,10 @@ function Start_Stream() {
         );
       };
       img.src = URL.createObjectURL(blob);
+      counter++;
+      if (counter == 24) {
+        done_sending = true;
+      }
     }
     else {
       console.log("not a blob");

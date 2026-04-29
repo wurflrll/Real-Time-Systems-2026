@@ -50,13 +50,14 @@ int main() {
 
     svr.WebSocket("/ws", [&scheduler](const httplib::Request &req, httplib::ws::WebSocket &ws) {
         
-        
+        while (ws.is_open()) {
         std::string whole_message;
         std::string message;
 
         Connection* new_connection = nullptr;
 
         bool found_terminator = false;
+
 
         while (ws.read(message)) {
             std::cout << "Read a message here\n";
@@ -110,7 +111,8 @@ int main() {
         }
         ws.send("good terminator...");
 
-
+        whole_message = {};
+        
         auto start = std::chrono::high_resolution_clock::now();
         while (!new_connection->finished) {   
             auto end = std::chrono::high_resolution_clock::now();
@@ -123,6 +125,7 @@ int main() {
         }
         delete new_connection;
         ws.send("Message finished\n");
+        }
     });
 
 

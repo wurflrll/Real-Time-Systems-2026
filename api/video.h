@@ -11,8 +11,11 @@ extern "C" {
 #include <iostream>
 #include <vector>
 #include <cstring>
-#include "compress.hpp"
+#include "compress.h"
 
+
+
+typedef std::vector<uint8_t> Frame;
 
 
 
@@ -21,7 +24,7 @@ class VideoBuffer {
     public: 
 
     uint32_t frame_size;
-    std::vector<uint8_t*> frame_buffers;
+    std::vector<Frame> frame_buffers;
 
     VideoBuffer() {}
 
@@ -29,16 +32,6 @@ class VideoBuffer {
 
     uint32_t GetFrame(uint32_t index);
 };
-
-
-struct FrameBuffer {
-    uint32_t start_frame;
-    uint32_t end_frame;
-    std::vector<uint8_t*> buffer;
-};
-
-typedef std::vector<FrameBuffer> FrameQueue;
-
 
 
 class VideoFormat {
@@ -57,8 +50,6 @@ class VideoFormat {
 
         int height;
         int width;
-
-        FrameQueue frame_queue;
 
         uint32_t start_frame;
         uint32_t end_frame;
