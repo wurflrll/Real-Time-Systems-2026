@@ -144,8 +144,6 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
                 
                 video_buffer.frame_buffers[frame_count] = compressBuffer(buffer_ptr, frame_size);
 
-
-
                 ++frame_count;
                 if (frame_count >= number_frames) {
                     av_packet_unref(pkt);
@@ -153,7 +151,6 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
                     return true;
                 }
             } 
-            // DON'T KNOW WHAT THIS MEANS: // potential issue seeing a frame and not using it
         }
         av_packet_unref(pkt);
     }

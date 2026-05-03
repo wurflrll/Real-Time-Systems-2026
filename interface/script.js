@@ -7,79 +7,81 @@ const submit_button = document.getElementById("submit_button");
 submit_button.addEventListener("click", Start_Stream);
 
 
+let second_limit = 5000;
+
+let frames_per_call = 20 * 24;
+
 
 async function Start_Stream() {
+  let second = parseInt(document.getElementById("start second").value);
 
-  let second = document.getElementById("second").value;
-  let done_sending = false;
+  console.log("second: ", second);
+  let total_frames = 0;
+
+  while (second < second_limit) {
+    console.log("read once");
+    await ReadSet(second);
+    second += 20;
+    console.log("second: ", second);
+    // frames_per_call / (24); // 24 fps is the standard frame rate
+  }
+}
+
+
+async function ReadSet(second) { return new Promise( (resolve, reject) => {
+
   let counter = 0;
-
+  let frames_received = 0;
 
   let socket = new WebSocket ( "ws://187.124.174.169:8080/ws" );
   socket.binaryType = "blob";
 
-
   socket.addEventListener("open", async () => {
-
-
-    let arr = new Uint32Array([second, 73, 1]);
+    let arr = new Uint32Array([second, frames_per_call, 1]);
     socket.send(arr.buffer);
     socket.send("Header end.");
-
-    while (true) {
-
-
-      while (!done_sending) {
-        await new Promise(resolve => setTimeout(resolve, 20));
-      }
-      second = second + 1;
-
-      arr = new Uint32Array([second, 73, 1]);
-      socket.send(arr.buffer);
-      socket.send("Header end.");
-
-      done_sending = false;
-      counter = 0;
-
-
-    }
-
   });
 
+
+
+  let buffer;
+
   socket.addEventListener("message", async (event) => {
-    //log(`RECEIVED: ${e.data}: ${counter}`);
+    //log(`RECEIVED: ${e.data}: ${counter}`)
+
 
     if (event.data instanceof Blob) {
-    
-      console.log("We have a blob!");
-      // const ds = new DecompressionStream("deflate-raw");
-      // const stream = event.data.stream().pipeThrough(ds);
-      // const response = await new Response(stream);
-      // const decompressed_blob = await response.blob();
-
-      //const blob = new Blob([e.data], { type: "image/bmp" });
-
-      const buffer = new Uint8Array(await event.data.arrayBuffer());
-      const decompressed = pako.inflate(buffer);
-      const blob = new Blob([decompressed], { type: "image/bmp" });
-      
-      console.log(blob.size);
-
-      const img = new Image();
-      img.onload = () => {
-        // scale image to fit the existing canvas size
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.drawImage(
-          img,
-          0, 0, img.width, img.height,      // source image area
-          0, 0, canvas.width, canvas.height // destination canvas area (scaled)
-        );
-      };
-      img.src = URL.createObjectURL(blob);
       counter++;
-      if (counter == 24) {
-        done_sending = true;
+      if (counter == 1) {
+        buffer = new Uint8Array(await event.data.arrayBuffer());
+      }
+      if (counter == 2) {
+        let second_buffer = new Uint8Array(await event.data.arrayBuffer());
+        let double_buffer = new Uint8Array(buffer.length + second_buffer.length);
+        double_buffer.set(buffer);           // Copies 'a' starting at index 0
+        double_buffer.set(second_buffer, buffer.length);
+        counter = 0;
+        frames_received++;
+        const decompressed = pako.inflate(double_buffer);
+        const blob = new Blob([decompressed], { type: "image/bmp" });
+      
+        console.log(blob.size);
+
+        const img = new Image();
+        img.onload = () => {
+          // scale image to fit the existing canvas size
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(
+            img,
+            0, 0, img.width, img.height,      // source image area
+            0, 0, canvas.width, canvas.height // destination canvas area (scaled)
+          );
+          //document.getElementById("start second").value = second + frames_received / 24;
+        };
+        img.src = URL.createObjectURL(blob);
+        if (frames_received == frames_per_call) {
+          socket.close();
+        }
       }
     }
     else {
@@ -89,42 +91,12 @@ async function Start_Stream() {
   });
   socket.addEventListener("error", (err) => {
     console.error("Socket error:", err);
+    reject(err);
   });
   socket.addEventListener("close", (event) => {
     console.log("Socket closed:", event.code, event.reason);
+    resolve();
   });
-}
+})}
 
-// async function Start_Stream() {
-//   const response = await fetch("http://187.124.174.169:8080/start?name=Jerry", {
-//     method: "POST"
-//   });
-//   let string = await response.text();
-//   console.log(string);
-// }
 
-// const totalFrames = 4;
-// const fps = 1; 
-// const frames = [];
-// let currentFrame = 0;
-
-// preload images
-// for (let i = 1; i <= totalFrames; i++) {
-//   const img = new Image();
-//   img.src = `frames/frame_${String(i).padStart(4, '0')}.bmp`;
-//   frames.push(img);
-// }
-
-// draw loop
-// function draw() {
-//   if (frames[currentFrame].complete) {
-//     ctx.drawImage(frames[currentFrame], 0, 0, canvas.width, canvas.height);
-//   }
-
-//   currentFrame++;
-//   if (currentFrame >= totalFrames) currentFrame = 0;
-
-//   setTimeout(draw, 1000 / fps);
-// }
-
-// start after a short delay (to allow loading)
