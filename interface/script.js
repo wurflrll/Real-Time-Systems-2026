@@ -10,7 +10,6 @@ submit_button.addEventListener("click", Start_Stream);
 
 async function Start_Stream() {
 
-
   let second = document.getElementById("second").value;
   let done_sending = false;
   let counter = 0;
@@ -85,7 +84,14 @@ async function Start_Stream() {
     }
     else {
       console.log("not a blob");
+      console.log(event.data);
     }
+  });
+  socket.addEventListener("error", (err) => {
+    console.error("Socket error:", err);
+  });
+  socket.addEventListener("close", (event) => {
+    console.log("Socket closed:", event.code, event.reason);
   });
 }
 

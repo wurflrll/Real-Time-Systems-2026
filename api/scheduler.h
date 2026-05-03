@@ -10,21 +10,18 @@
 
 #include "cpp-httplib/httplib.h"
 
-#define REQUEST_SIZE 12
-
 
 struct RequestInfo { 
     uint32_t start_second;
-    uint32_t end_second;
+    uint32_t number_frames;
     uint32_t movie_index;
 
     friend std::ostream& operator<<(std::ostream& os, const RequestInfo& req);
-
 };
 
 
-class Connection {
 
+class Connection {
     private:
     
     RequestInfo request_info;
@@ -47,6 +44,7 @@ class Connection {
     void InitialWork();
     void SendBuffer();
     void ClearBuffer();
+    bool Finished();
 };
 
 

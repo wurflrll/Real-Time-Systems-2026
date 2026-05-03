@@ -8,7 +8,6 @@ void VideoBuffer::AllocateFrames(uint32_t number_frames) {
     //     }
     //     frame_buffers.push_back(ptr);
     // }
-
 }
 
 bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
@@ -49,9 +48,6 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
 
     frame_size = height * width * 3 + 54;
 
-    std::cout << "WIDTH: " << width << "\n";
-    std::cout << "HEIGHT: " << height << "\n";
-
     int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1);
     uint8_t* buffer = (uint8_t*) av_malloc(numBytes);
 
@@ -68,7 +64,6 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
     AVRational time_base = fmtCtx->streams[videoStream]->time_base;
 
 
-    std::cout << "START SECOND: " << start_second << "\n";
 
     int64_t initial_timestamp = av_rescale_q(
         start_second,
@@ -121,8 +116,6 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
 
                 // allocate a new buffer here:
                 
-                std::cout << "line size: " << rgbFrame->linesize[0] << "\n";
-
                 int scale_ret = sws_scale(
                     swsCtx,
                     frame->data,

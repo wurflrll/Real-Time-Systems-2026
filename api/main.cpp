@@ -10,10 +10,14 @@
 
 #include "cpp-httplib/httplib.h"
 #include "scheduler.h"
+#include "requests.h"
+
+#define REQUEST_SIZE 12
 
 using namespace std::literals::chrono_literals;
 
-std::string terminal = "Header end.";
+extern std::string terminal;
+
 
 int main() {
 
@@ -48,9 +52,11 @@ int main() {
         res.set_content("Hello World! " + name, "text/plain");
     });
 
+
     svr.WebSocket("/ws", [&scheduler](const httplib::Request &req, httplib::ws::WebSocket &ws) {
-        
-        while (ws.is_open()) {
+       
+        std::cout << "Inside of a new request\n";
+
         std::string whole_message;
         std::string message;
 
@@ -58,6 +64,10 @@ int main() {
 
         bool found_terminator = false;
 
+
+        //std::cout << "original read value: " << ws.read(message) << "\n";
+
+        //whole_message += message;
 
         while (ws.read(message)) {
             std::cout << "Read a message here\n";
@@ -104,6 +114,9 @@ int main() {
             new_connection = scheduler.AddNewRequest(request_info, ws);
             break;
         };
+
+        std::cout << "WAS HERE TOO\n";
+
         if (!found_terminator) {
             ws.send("bad terminator");
             assert(new_connection == nullptr);
@@ -116,7 +129,7 @@ int main() {
         auto start = std::chrono::high_resolution_clock::now();
         while (!new_connection->finished) {   
             auto end = std::chrono::high_resolution_clock::now();
-            if (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() > 20000) {
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() > 200000) {
                 std::cout << "a timeout has occurred\n";
                 ws.send("timeout");
                 break;
@@ -124,8 +137,11 @@ int main() {
             std::this_thread::sleep_for(50ms);
         }
         delete new_connection;
+
+        std::cout << "Leaving the functions\n";
+
+        //std::cout << "Leaving\n";
         ws.send("Message finished\n");
-        }
     });
 
 

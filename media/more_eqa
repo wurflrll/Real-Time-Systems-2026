@@ -1,0 +1,6 @@
+EQUATION FOR k with respect to n and e_eff
+
+
+Integrating K:
+E(z_0) =E_2e^{-j\int_{0}^{z_0}k(z)dz}
+

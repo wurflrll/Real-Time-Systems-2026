@@ -2,13 +2,15 @@
 
 using namespace std::literals::chrono_literals;
 
+uint32_t request_size = 12;
+
+
 std::ostream& operator<<(std::ostream& os, const RequestInfo& req) {
     os << "start: " << req.start_second << "\n";
-    os << "end: " << req.end_second << "\n";
+    os << "number frames: " << req.number_frames << "\n";
     os << "index: " << req.movie_index << "\n";
     return os;
 }
-
 
 void Connection::InitialWork() {
     char movie_file[50];
@@ -34,7 +36,9 @@ void Connection::InitialWork() {
 
     // WANT TO CHOOSE TOTAL NUMBER OF FRAMES TO SEND
 
-    uint32_t total_frames = video_format.GetTotalFrames();
+    //uint32_t total_frames = video_format.GetTotalFrames();
+
+    uint32_t total_frames = request_info.number_frames;
 
     std::cout << "total frames: " << total_frames << "\n";
 
@@ -55,10 +59,23 @@ void Connection::InitialWork() {
     std::cout << "some initial work, id: " << id << "\n";
 }
 
+bool Connection::Finished() { 
+    return finished;
+}
+
+
+
 void Connection::SendBuffer() {
     for (Frame& frame : video_buffer.frame_buffers) {
         //socket->send(reinterpret_cast<const char*>(frame_ptr), video_buffer.frame_size);
-        socket->send(reinterpret_cast<const char*>(frame.data()), frame.size());
+        std::cout << "FRAME SIZE: " << frame.size() << "\n";
+
+        uint32_t half = frame.size() / 2;
+
+        //socket->send(reinterpret_cast<const char*>(frame.data()), frame.size());
+        socket->send(reinterpret_cast<const char*>(frame.data()), half);
+        socket->send(reinterpret_cast<const char*>(frame.data() + half), frame.size() - half);
+
     }
 }
 

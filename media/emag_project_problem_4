@@ -1,0 +1,43 @@
+frac{E_{1}}{E_{i}}=\frac{2n_1}{n_1+n_2}
+\frac{E_{out}}{E_{in,2}}=\frac{2n_{slab}(z=d)}{n_{air}+n_{slab}(z=d)}
+
+SUBSTITUTE VALUES:
+5.27 + =\frac{(80-5.27)}{(1+j(2\pi2.45e9)(1e-11))}
+
+N SLAB:
+n_{slab}(z=d) = \sqrt{\epsilon_{eff}}=\sqrt{\epsilon_{\infty}+\frac{\epsilon_{s}-\epsilon_{\infty}}{1+j\omega\tau}-\frac{j\sigma d}{\omega\epsilon_0d}}
+n_{slab}(z=d)=9.445e^{-0.25}
+
+POWER OUT:
+\frac{P_{out}}{P_{in,2}}=\frac{Re\{n_{air}\}}{Re\{n_{slab}(z=d)\}}\frac{|E_{out}|^2}{|E_{in,2}|^2} = 
+
+Real Power and n
+=\frac{1}{2\eta}|E|^2=\frac{n}{2}\sqrt{\frac{\epsilon_0}{\mu_0}}|E|^2
+
+cacled reflection:
+E(z)=\hat{x}\frac{2}{1+8.892e^{-i0.0713}}=\hat{x}0.20222e^{0.0641}
+
+epsilon substitute z = 0:
+\epsilon_{eff}(z=0)=\epsilon_{\infty}+\frac{\epsilon_{s}-\epsilon_{\infty}}{1+j\omega\tau}
+
+to get refractive input:
+n_2=\sqrt{79.073e^{-j0.1426}}=8.892e^{-i0.0713}
+
+
+EQUATION FOR A:
+a = \omega^2\mu_0\epsilon_0\frac{j\sigma}{\omega\epsilon_0d}
+
+EQUATION FOR B:
+b = Im \{-\omega^2\mu_0\epsilon_0(\epsilon_{\infty}+\frac{\epsilon_s-\epsilon_{\infty}}{1+j\omega\tau})\}
+
+\nabla^{2}E(z,t)=-\omega^{2}\mu\epsilon(z) E(z,t)
+
+\nabla^{2}E(z)=-\omega^{2}\mu\epsilon(z) E(z)
+
+\frac{\partial^2 E}{\partial z^2}=-\omega^{2}\mu_0\epsilon_{0}\epsilon_{eff}(z)E(z)
+
+-\omega^{2}\mu_0\epsilon_{0}\epsilon_{eff}=(ja)z+jb+c
+
+\frac{\partial^2 E}{\partial z^2}=((ja)z+jb+c)E(z)
+
+S = \frac{1}{2} E \times \bar H
