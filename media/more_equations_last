@@ -1,0 +1,15 @@
+\int_{0}^{z}\sqrt{\epsilon_{eff}}=\int_{0}^{z}\sqrt{a-jb-cz_0}dz_0=\frac{2j}{3c}((a-jb-cz)^{3/2}-(a-jb)^{3/2})
+
+
+
+
+0<z<d:E(z)=\hat{y}0.2022e^{-149.01+j33.0217+0.2168(78.27-j11.238-j157.744z)^{3/2}}
+
+
+
+
+z>d:E(z)=E(z=d)e^{-j\frac{w}{c}n_{salt water}z}=\hat{y}4.0725*10^{-8}e^{j2.716-j(469.548-j119.962)z}
+
+
+
+\eta(z)=\frac{\sqrt{\mu_0}}{\sqrt{\epsilon_0\epsilon}}=\frac{376.73}{\sqrt{\epsilon_{eff}}}

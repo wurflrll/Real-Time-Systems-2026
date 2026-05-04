@@ -1,14 +1,14 @@
 #include "video.h"
 
-void VideoBuffer::AllocateFrames(uint32_t number_frames) { 
-    // for (int i = 0; i < number_frames; ++i) {
-    //     uint8_t* ptr = (uint8_t*) malloc(frame_size);
-    //     if (ptr == NULL) { 
-    //         std::cout << "ran out of memory\n";
-    //     }
-    //     frame_buffers.push_back(ptr);
-    // }
+
+void SendBuffer(const std::vector<uint8_t>& data, httplib::ws::WebSocket &ws) {
+    uint32_t half = data.size() / 2;
+    ws.send(reinterpret_cast<const char*>(data.data()), half);
+    ws.send(reinterpret_cast<const char*>(data.data() + half), data.size() - half);
 }
+
+
+
 
 bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
 
@@ -79,7 +79,7 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
     return true;
 }
     
-bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer) {
+bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer, httplib::ws::WebSocket &ws) {
 
     int videoStream = -1;
     for (unsigned i = 0; i < fmtCtx->nb_streams; i++) {
@@ -142,7 +142,8 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
 
                 AddHeader(buffer_ptr);
                 
-                video_buffer.frame_buffers[frame_count] = compressBuffer(buffer_ptr, frame_size);
+                SendBuffer(compressBuffer(buffer_ptr, frame_size), ws);
+
 
                 ++frame_count;
                 if (frame_count >= number_frames) {

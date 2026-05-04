@@ -44,13 +44,11 @@ void Connection::InitialWork() {
 
     video_buffer.frame_size = video_format.frame_size;
 
-    video_buffer.AllocateFrames(total_frames);
-
-    if (!video_format.ProcessFrames(total_frames, video_buffer)) { 
+    if (!video_format.ProcessFrames(total_frames, video_buffer, *socket)) { 
         std::cout << "frame processing failed\n";
         return;
     };
-    SendBuffer();
+    //SendBuffer();
 
     ClearBuffer();
 

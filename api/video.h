@@ -8,6 +8,8 @@ extern "C" {
 }
 
 
+#include "cpp-httplib/httplib.h"
+
 #include <iostream>
 #include <vector>
 #include <cstring>
@@ -64,7 +66,9 @@ class VideoFormat {
 
     uint32_t GetTotalFrames();
 
-    bool ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer);
+    bool ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer, httplib::ws::WebSocket &ws);
 
     void AddHeader(uint8_t* buffer_ptr);
 };
+
+void SendBuffer(const std::vector<uint8_t>& data, httplib::ws::WebSocket &ws);
