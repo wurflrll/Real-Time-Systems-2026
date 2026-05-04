@@ -19,6 +19,9 @@ using namespace std::literals::chrono_literals;
 extern std::string terminal;
 
 
+VideoFormat* video_format_1;
+
+
 int main() {
 
     std::vector<Connection> connections;
@@ -28,6 +31,8 @@ int main() {
     httplib::Server svr;
 
     Scheduler scheduler;
+
+    video_format_1 = new VideoFormat("media/video_1.mp4");
 
 
     svr.Options(R"(/.*)", [](const httplib::Request &req, httplib::Response &res) {

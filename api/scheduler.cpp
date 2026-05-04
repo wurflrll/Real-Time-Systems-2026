@@ -5,6 +5,9 @@ using namespace std::literals::chrono_literals;
 uint32_t request_size = 12;
 
 
+
+extern VideoFormat* video_format_1;
+
 std::ostream& operator<<(std::ostream& os, const RequestInfo& req) {
     os << "start: " << req.start_second << "\n";
     os << "number frames: " << req.number_frames << "\n";
@@ -13,44 +16,30 @@ std::ostream& operator<<(std::ostream& os, const RequestInfo& req) {
 }
 
 void Connection::InitialWork() {
-    char movie_file[50];
-    switch(request_info.movie_index) {
-        case 1:
-            strcpy(movie_file, "movie_1.mp4"); break;
-        case 2:
-            strcpy(movie_file, "movie_2.mp4"); break;
-        case 3:
-            strcpy(movie_file, "movie_3.mp4"); break;
-        default:
-            strcpy(movie_file, "movie_3.mp4");    
-    }
+    //char movie_file[50];
+    // switch(request_info.movie_index) {
+    //     case 1:
+    //         strcpy(movie_file, "movie_1.mp4"); break;
+    //     case 2:
+    //         strcpy(movie_file, "movie_2.mp4"); break;
+    //     case 3:
+    //         strcpy(movie_file, "movie_3.mp4"); break;
+    //     default:
+    //         strcpy(movie_file, "movie_3.mp4");    
+    // }
+    /////TODO : REPLACE
+    // .... video_format = video_format_n
 
-    // TODO: delete this: this is only for testing
-    strcpy(movie_file, "media/video_1.mp4");  
-                            
-    if (!video_format.InitialRead(movie_file, request_info.start_second)) { 
-        std::cout << "Initial Read Failed\n";
-        finished = true;
-        return;
-    };
+    // TODO: delete this: this is only for experiment results
+    //strcpy(movie_file, "media/video_1.mp4");  
 
-    // WANT TO CHOOSE TOTAL NUMBER OF FRAMES TO SEND
+    video_format = video_format_1;
 
-    //uint32_t total_frames = video_format.GetTotalFrames();
+    frame_index = video_format->GetFrameIndex((double) request_info.start_second);
 
-    uint32_t total_frames = request_info.number_frames;
+    std::cout << "FRAME INDEX: " << frame_index << "\n";
 
-    std::cout << "total frames: " << total_frames << "\n";
-
-    video_buffer.frame_size = video_format.buffer_size;
-
-    if (!video_format.ProcessFrames(total_frames, video_buffer, *socket)) { 
-        std::cout << "frame processing failed\n";
-        return;
-    };
-    //SendBuffer();
-
-    ClearBuffer();
+    video_format->ProcessFrames(frame_index, request_info.number_frames, *socket);
 
     finished = true;
 
@@ -60,30 +49,6 @@ void Connection::InitialWork() {
 bool Connection::Finished() { 
     return finished;
 }
-
-
-
-void Connection::SendBuffer() {
-    for (Frame& frame : video_buffer.frame_buffers) {
-        //socket->send(reinterpret_cast<const char*>(frame_ptr), video_buffer.frame_size);
-        std::cout << "FRAME SIZE: " << frame.size() << "\n";
-
-        uint32_t half = frame.size() / 2;
-
-        //socket->send(reinterpret_cast<const char*>(frame.data()), frame.size());
-        socket->send(reinterpret_cast<const char*>(frame.data()), half);
-        socket->send(reinterpret_cast<const char*>(frame.data() + half), frame.size() - half);
-
-    }
-}
-
-void Connection::ClearBuffer() {
-    // for (auto vec : video_buffer.frame_buffers) {
-    //     free(vec);
-    // }
-}
-
-
 
 Connection* Scheduler::AddNewRequest(RequestInfo request_info, httplib::ws::WebSocket& ws) {
     Connection* connection = new Connection(request_info, ws);
@@ -104,6 +69,9 @@ void Scheduler::Run() {
         Connection* connection = connections[0];
 
         connection->InitialWork();
+
+        connection_mutex.lock();
         connections.erase(connections.begin());
+        connection_mutex.unlock();
     }
 }

@@ -21,7 +21,7 @@ async def client(client_id, queue):
         start = time.time()
 
         text = "Header end."
-        payload = struct.pack("III", 200, 5, 1) + text.encode("utf-8")
+        payload = struct.pack("III", 5, 5, 1) + text.encode("utf-8")
 
         await ws.send(payload)
 

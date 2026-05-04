@@ -1,13 +1,18 @@
 #include "video.h"
 
 
+
+
+const uint32_t max_seconds = 20;
+
+
 void SendBuffer(const std::vector<uint8_t>& data, httplib::ws::WebSocket &ws) {
     uint32_t half = data.size() / 2;
     ws.send(reinterpret_cast<const char*>(data.data()), half);
     ws.send(reinterpret_cast<const char*>(data.data() + half), data.size() - half);
 }
 
-bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
+bool VideoFormat::InitialSetup(char* filename) {
 
     avformat_network_init();
 
@@ -65,10 +70,10 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
         SWS_BILINEAR, nullptr, nullptr, nullptr
     );
 
-    AVRational time_base = fmtCtx->streams[videoStream]->time_base;
+    time_base = fmtCtx->streams[videoStream]->time_base;
 
     int64_t initial_timestamp = av_rescale_q(
-        start_second,
+        0, // replacing start second
         (AVRational){1, 1},
         fmtCtx->streams[videoStream]->time_base
     );
@@ -82,8 +87,7 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
     return true;
 }
 
-    
-bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer, httplib::ws::WebSocket &ws) {
+bool VideoFormat::InitialRead() {
 
     int videoStream = -1;
     for (unsigned i = 0; i < fmtCtx->nb_streams; i++) {
@@ -92,17 +96,20 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
             break;
         }
     }
-    video_buffer.frame_buffers.resize(number_frames);
+
+    assert(videoStream != -1);
 
     int frame_count = 0;
     while (true) {
 
         int result = av_read_frame(fmtCtx, pkt);
         if (result < 0) {
-            if (frame_count != number_frames) {
-                std::cout << "A request has failed\n";
-                return false;
-            }
+            // if (frame_count != number_frames) {
+            //     std::cout << "A request has failed\n";
+            //     return false;
+            // }
+            std::cout << "FRAME COUNT: " << frame_count << "\n";
+
             return true;
         }
 
@@ -129,15 +136,10 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
                     return false;
                 }
                 
-            
+                PushFrame();
 
-                AddHeader(buffer);
-                
-                SendBuffer(compressBuffer(buffer, buffer_size), ws);
-
-
-                ++frame_count;
-                if (frame_count >= number_frames) {
+                double pts_time = frame->best_effort_timestamp * av_q2d(time_base);
+                if ((double) max_seconds < pts_time) {
                     av_packet_unref(pkt);
                     return true;
                 }
@@ -148,8 +150,67 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
 }
 
 
-uint32_t VideoFormat::GetTotalFrames() {
-    return 24;
+
+bool VideoFormat::PushFrame() {
+    double pts_time = frame->best_effort_timestamp * av_q2d(time_base);
+
+    AddHeader(buffer);
+
+    std::vector<uint8_t> compressed = compressBuffer(buffer, buffer_size);
+
+    CompressedFrame new_frame_buffer;
+
+    new_frame_buffer.buffer_ptr = (uint8_t*) malloc(compressed.size());
+
+    new_frame_buffer.buffer_size = compressed.size();
+
+    new_frame_buffer.time_stamp = pts_time;
+
+    memcpy(new_frame_buffer.buffer_ptr, compressed.data(), compressed.size());
+
+    frame_array.push_back(new_frame_buffer);
+
+    return true; // FIX return conditions
+}
+
+
+uint32_t VideoFormat::GetFrameIndex(double time_stamp) {
+
+    uint32_t left = 0;
+    uint32_t right = frame_array.size() - 1;
+
+    while (1) {
+        uint32_t middle = (left + right)/2;
+
+        if (frame_array[middle].time_stamp > time_stamp) { 
+            right = middle;
+        }
+        else { 
+            left = middle;
+        }
+        if (right - left <= 1) {
+            return left;
+        }
+    }
+}
+
+    
+void VideoFormat::ProcessFrames(uint32_t& frame_index, uint32_t number_frames, httplib::ws::WebSocket &ws) {
+
+    std::cout << "number of frames:" << number_frames << "\n";
+    for (int i = 0; i < number_frames; ++i) { 
+        if (frame_index < frame_array.size()) {
+            CompressedFrame c_frame = frame_array[frame_index];
+            uint32_t half = c_frame.buffer_size / 2;
+            ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr), half);
+            ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr + half), c_frame.buffer_size - half);
+        }
+        else { 
+            break;
+        }
+        frame_index += 1;
+    }
+    std::cout << "done sending\n";
 }
 
 

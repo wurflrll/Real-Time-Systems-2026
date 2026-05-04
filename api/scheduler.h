@@ -25,9 +25,9 @@ class Connection {
     private:
     
     RequestInfo request_info;
-    VideoFormat video_format;
-    VideoBuffer video_buffer;
     httplib::ws::WebSocket* socket;
+    uint32_t frame_index;
+    VideoFormat* video_format;
 
     public:
 
@@ -42,8 +42,6 @@ class Connection {
         finished = false;
     }
     void InitialWork();
-    void SendBuffer();
-    void ClearBuffer();
     bool Finished();
 };
 

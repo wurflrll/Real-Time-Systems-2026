@@ -16,25 +16,11 @@ extern "C" {
 #include "compress.h"
 
 
-
-typedef std::vector<uint8_t> Frame;
-
-
-
-class VideoBuffer {
-
-    public: 
-
-    uint32_t frame_size;
-    std::vector<Frame> frame_buffers;
-
-    VideoBuffer() {}
-
-    void AllocateFrames(uint32_t number_frames);
-
-    uint32_t GetFrame(uint32_t index);
+struct CompressedFrame { 
+    uint8_t* buffer_ptr;
+    uint32_t buffer_size;
+    double time_stamp;
 };
-
 
 class VideoFormat {
 
@@ -45,6 +31,8 @@ class VideoFormat {
         AVCodecParameters* codecpar;
         AVCodecContext* codecCtx;
         SwsContext* swsCtx;
+
+        AVRational time_base;
 
         AVPacket* pkt = av_packet_alloc();
         AVFrame* frame = av_frame_alloc();
@@ -57,17 +45,32 @@ class VideoFormat {
         uint32_t end_frame;
 
         uint8_t* buffer;
+        uint32_t buffer_size;
+
+        std::vector<CompressedFrame> frame_array;
 
     public:
-        uint32_t buffer_size;
 
     VideoFormat() {}
 
-    bool InitialRead(char* filename, uint32_t start_second);
+    VideoFormat(char* filename) {
+        std::cout << "Starting encoding process...." << "\n";
+        if (!InitialSetup(filename)) { 
+            std::cout << "Something went wrong in initial process\n";
+        }
+        InitialRead();
+        std::cout << "Finished encoding\n";
+    }
 
-    uint32_t GetTotalFrames();
+    bool InitialSetup(char* filename);
 
-    bool ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer, httplib::ws::WebSocket &ws);
+    bool InitialRead();
+
+    bool PushFrame();
+
+    uint32_t GetFrameIndex(double time_stamp);
+
+    void ProcessFrames(uint32_t& frame_index, uint32_t number_frames, httplib::ws::WebSocket &ws);
 
     void AddHeader(uint8_t* buffer_ptr);
 };
