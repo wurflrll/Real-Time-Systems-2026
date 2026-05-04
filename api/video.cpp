@@ -7,9 +7,6 @@ void SendBuffer(const std::vector<uint8_t>& data, httplib::ws::WebSocket &ws) {
     ws.send(reinterpret_cast<const char*>(data.data() + half), data.size() - half);
 }
 
-
-
-
 bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
 
     avformat_network_init();
@@ -33,6 +30,10 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
         }
     }
 
+    if (videoStream == -1) {
+        std::cout << "a stream could not be found\n";
+    }
+
     codecpar = fmtCtx->streams[videoStream]->codecpar;
     const AVCodec* codec = avcodec_find_decoder(codecpar->codec_id);
     codecCtx = avcodec_alloc_context3(codec);
@@ -48,10 +49,18 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
 
     frame_size = height * width * 3 + 54;
 
-    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1);
-    uint8_t* buffer = (uint8_t*) av_malloc(numBytes);
 
-    av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, buffer,
+    // added 54 here
+    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1) + 54;
+
+    std::cout << "FRAME SIZE INITIAL READ: " << frame_size << "\n";
+
+    std::cout << "NUM BYTES AV AV_IMAGE: " << numBytes << "\n"; 
+
+
+    buffer = (uint8_t*) av_malloc(numBytes);
+
+    av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, buffer + 54,
                          AV_PIX_FMT_RGB24, width, height, 1);
 
     swsCtx = sws_getContext(
@@ -60,10 +69,7 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
         SWS_BILINEAR, nullptr, nullptr, nullptr
     );
 
-
     AVRational time_base = fmtCtx->streams[videoStream]->time_base;
-
-
 
     int64_t initial_timestamp = av_rescale_q(
         start_second,
@@ -78,6 +84,9 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
 
     return true;
 }
+
+
+
     
 bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer, httplib::ws::WebSocket &ws) {
 
@@ -132,17 +141,20 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
                     return false;
                 }
             
-                uint32_t byte_location = 54; // 54 is the header size
-
-                for (int y = height - 1; y >= 0; y--) {
-                    //memcpy(video_buffer.frame_buffers[frame_count] + byte_location, rgbFrame->data[0] + y * rgbFrame->linesize[0], width * 3);
-                    memcpy(buffer_ptr + byte_location, rgbFrame->data[0] + y * rgbFrame->linesize[0], width * 3);
-                    byte_location += width * 3;
-                }            
-
-                AddHeader(buffer_ptr);
+                // uint32_t byte_location = 54; 
                 
-                SendBuffer(compressBuffer(buffer_ptr, frame_size), ws);
+                // for (int y = height - 1; y >= 0; y--) {
+                //     memcpy(buffer_ptr + byte_location, rgbFrame->data[0] + y * rgbFrame->linesize[0], width * 3);
+                //     byte_location += width * 3;
+                //     std::cout << "width: " << width * 3 <<"\n";
+                //     std::cout << "linesize: " << rgbFrame->linesize[0] << "\n";
+                // }
+                
+            
+
+                AddHeader(buffer);
+                
+                SendBuffer(compressBuffer(buffer, frame_size), ws);
 
 
                 ++frame_count;

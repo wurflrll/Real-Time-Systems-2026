@@ -56,6 +56,8 @@ class VideoFormat {
         uint32_t start_frame;
         uint32_t end_frame;
 
+        uint8_t* buffer;
+
     public:
 
         uint32_t frame_size;
