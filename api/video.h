@@ -59,8 +59,7 @@ class VideoFormat {
         uint8_t* buffer;
 
     public:
-
-        uint32_t frame_size;
+        uint32_t buffer_size;
 
     VideoFormat() {}
 

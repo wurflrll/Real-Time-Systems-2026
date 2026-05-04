@@ -26,7 +26,7 @@ void Connection::InitialWork() {
     }
 
     // TODO: delete this: this is only for testing
-    strcpy(movie_file, "input.mp4");  
+    strcpy(movie_file, "media/video_1.mp4");  
                             
     if (!video_format.InitialRead(movie_file, request_info.start_second)) { 
         std::cout << "Initial Read Failed\n";
@@ -42,7 +42,7 @@ void Connection::InitialWork() {
 
     std::cout << "total frames: " << total_frames << "\n";
 
-    video_buffer.frame_size = video_format.frame_size;
+    video_buffer.frame_size = video_format.buffer_size;
 
     if (!video_format.ProcessFrames(total_frames, video_buffer, *socket)) { 
         std::cout << "frame processing failed\n";

@@ -47,18 +47,14 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
     width = codecCtx->width;
     height = codecCtx->height;
 
-    frame_size = height * width * 3 + 54;
-
-
     // added 54 here
-    int numBytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1) + 54;
-
-    std::cout << "FRAME SIZE INITIAL READ: " << frame_size << "\n";
-
-    std::cout << "NUM BYTES AV AV_IMAGE: " << numBytes << "\n"; 
+    buffer_size = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1) + 54;
 
 
-    buffer = (uint8_t*) av_malloc(numBytes);
+    std::cout << "NUM BYTES AV AV_IMAGE: " << buffer_size << "\n"; 
+
+
+    buffer = (uint8_t*) av_malloc(buffer_size);
 
     av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, buffer + 54,
                          AV_PIX_FMT_RGB24, width, height, 1);
@@ -76,6 +72,7 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
         (AVRational){1, 1},
         fmtCtx->streams[videoStream]->time_base
     );
+
     std::cout << "av_seek status: " << av_seek_frame(fmtCtx, videoStream, initial_timestamp, AVSEEK_FLAG_BACKWARD);
    
     avcodec_flush_buffers(codecCtx);
@@ -84,8 +81,6 @@ bool VideoFormat::InitialRead(char* filename, uint32_t start_second) {
 
     return true;
 }
-
-
 
     
 bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffer, httplib::ws::WebSocket &ws) {
@@ -97,9 +92,6 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
             break;
         }
     }
-
-    uint8_t* one_time_buffer = (uint8_t*) malloc(frame_size);
-
     video_buffer.frame_buffers.resize(number_frames);
 
     int frame_count = 0;
@@ -109,7 +101,6 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
         if (result < 0) {
             if (frame_count != number_frames) {
                 std::cout << "A request has failed\n";
-                free(one_time_buffer);
                 return false;
             }
             return true;
@@ -120,8 +111,6 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
         if (pkt->stream_index == videoStream) {
             avcodec_send_packet(codecCtx, pkt);
             while (avcodec_receive_frame(codecCtx, frame) == 0) {
-
-                uint8_t* buffer_ptr = one_time_buffer;
 
                 // allocate a new buffer here:
                 
@@ -137,30 +126,19 @@ bool VideoFormat::ProcessFrames(uint32_t number_frames, VideoBuffer& video_buffe
 
                 if (scale_ret < 0) { 
                     std::cout << "sws failed\n";
-                    free(one_time_buffer);
                     return false;
                 }
-            
-                // uint32_t byte_location = 54; 
-                
-                // for (int y = height - 1; y >= 0; y--) {
-                //     memcpy(buffer_ptr + byte_location, rgbFrame->data[0] + y * rgbFrame->linesize[0], width * 3);
-                //     byte_location += width * 3;
-                //     std::cout << "width: " << width * 3 <<"\n";
-                //     std::cout << "linesize: " << rgbFrame->linesize[0] << "\n";
-                // }
                 
             
 
                 AddHeader(buffer);
                 
-                SendBuffer(compressBuffer(buffer, frame_size), ws);
+                SendBuffer(compressBuffer(buffer, buffer_size), ws);
 
 
                 ++frame_count;
                 if (frame_count >= number_frames) {
                     av_packet_unref(pkt);
-                    free(one_time_buffer);
                     return true;
                 }
             } 

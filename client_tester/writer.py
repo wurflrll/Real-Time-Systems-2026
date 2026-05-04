@@ -12,6 +12,7 @@ async def writer(queue):
             if line is None:
                 break
             f.write(line + "\n")
+            print("called here: ", line)
             f.flush()
 
 async def client(client_id, queue):
