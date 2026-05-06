@@ -20,8 +20,8 @@ async def client(client_id, queue):
         frames = 10
         start = time.time()
 
-        text = "Header end."
-        payload = struct.pack("III", 5, 5, 1) + text.encode("utf-8")
+        #text = "Header end."
+        payload = struct.pack("III", 5, 5, 1) # + text.encode("utf-8")
 
         await ws.send(payload)
 
@@ -58,4 +58,4 @@ async def main(n_clients):
     await queue.put(None)  # stop signal
     await writer_task
 
-asyncio.run(main(2))
+asyncio.run(main(10))

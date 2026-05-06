@@ -32,6 +32,8 @@ class VideoFormat {
         AVCodecContext* codecCtx;
         SwsContext* swsCtx;
 
+        AVCodecContext* jpegCtx;
+
         AVRational time_base;
 
         AVPacket* pkt = av_packet_alloc();
@@ -66,7 +68,7 @@ class VideoFormat {
 
     bool InitialRead();
 
-    bool PushFrame();
+    bool PushFrame(uint8_t* buffer_ptr, uint32_t size);
 
     uint32_t GetFrameIndex(double time_stamp);
 

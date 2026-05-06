@@ -62,75 +62,31 @@ int main() {
        
         std::cout << "Inside of a new request\n";
 
-        std::string whole_message;
         std::string message;
 
         Connection* new_connection = nullptr;
 
         bool found_terminator = false;
 
-
-        //std::cout << "original read value: " << ws.read(message) << "\n";
-
-        //whole_message += message;
-
         while (ws.read(message)) {
-            std::cout << "Read a message here\n";
-            whole_message += message;
-            std::cout << "Message size: " << message.size() << "\n";
-            for (char c : message) {
-                std::cout << c;
-            }
-            std::cout << "====end of string\n";
-
-            std::cout << "whole message size: " << whole_message.size() << "\n";
-
-            std::cout << "Request size: " << REQUEST_SIZE << "\n";
-
-            std::cout << "terminal size: " << terminal.size() << "\n";
-
-            if (whole_message.size() > REQUEST_SIZE + terminal.size()) { 
+            if (message.size() > REQUEST_SIZE) { 
                 std::cout << "something screwed up, message too big\n";
                 ws.send("Wrong termination... Message too big\n");
-                break;
-            }
-            else if (whole_message.size() < REQUEST_SIZE + terminal.size()) {
-                std::cout << "message is incomplete\n";
-                continue;
-            }
-
-            assert(whole_message.size() == terminal.size() + REQUEST_SIZE);
-
-            found_terminator = true;
-            for (int i = whole_message.size() - terminal.size(); i < whole_message.size(); ++i) { 
-                if (whole_message[i] != terminal[i - (whole_message.size() - terminal.size())]) { 
-                    found_terminator = false;
-                    break;
-                }
-            }
-            if (!found_terminator) {
-                std::cout << "Wrong termination...\n";
-                ws.send("Wrong termination... Right size\n");
                 return;
             }
+            else if (message.size() < REQUEST_SIZE) {
+                std::cout << "message is incomplete\n";
+                return;
+            }
+
             RequestInfo request_info;
-            memcpy(&request_info, whole_message.data(), REQUEST_SIZE);
+            memcpy(&request_info, message.data(), REQUEST_SIZE);
             std::cout << "request info: " << request_info << "\n";
             new_connection = scheduler.AddNewRequest(request_info, ws);
             break;
         };
-
-        std::cout << "WAS HERE TOO\n";
-
-        if (!found_terminator) {
-            ws.send("bad terminator");
-            assert(new_connection == nullptr);
-            return;
-        }
         ws.send("good terminator...");
 
-        whole_message = {};
-        
         auto start = std::chrono::high_resolution_clock::now();
         while (!new_connection->finished) {   
             auto end = std::chrono::high_resolution_clock::now();
@@ -142,10 +98,6 @@ int main() {
             std::this_thread::sleep_for(50ms);
         }
         delete new_connection;
-
-        std::cout << "Leaving the functions\n";
-
-        //std::cout << "Leaving\n";
         ws.send("Message finished\n");
     });
 

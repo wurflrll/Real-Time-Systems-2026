@@ -3,13 +3,21 @@
 
 
 
-const uint32_t max_seconds = 20;
+const uint32_t max_seconds = 50;
 
 
 void SendBuffer(const std::vector<uint8_t>& data, httplib::ws::WebSocket &ws) {
     uint32_t half = data.size() / 2;
-    ws.send(reinterpret_cast<const char*>(data.data()), half);
-    ws.send(reinterpret_cast<const char*>(data.data() + half), data.size() - half);
+    //ws.send(reinterpret_cast<const char*>(data.data()), half);
+    //ws.send(reinterpret_cast<const char*>(data.data() + half), data.size() - half);
+
+
+    std::cout << "DATA SIZE: " << data.size() << "\n";
+    for (int i = 0; i < 10; ++i) { 
+        std::cout << data[i] << "\n";
+    }
+    ws.send(reinterpret_cast<const char*>(data.data()), data.size());
+
 }
 
 bool VideoFormat::InitialSetup(char* filename) {
@@ -40,6 +48,8 @@ bool VideoFormat::InitialSetup(char* filename) {
     }
 
     codecpar = fmtCtx->streams[videoStream]->codecpar;
+    //const AVCodec* codec = avcodec_find_decoder(codecpar->codec_id);
+
     const AVCodec* codec = avcodec_find_decoder(codecpar->codec_id);
     codecCtx = avcodec_alloc_context3(codec);
     avcodec_parameters_to_context(codecCtx, codecpar);
@@ -52,8 +62,12 @@ bool VideoFormat::InitialSetup(char* filename) {
     width = codecCtx->width;
     height = codecCtx->height;
 
+
+    int header_size = 0;
+    // int header_size = 54; // FOR BMP HEADER
+
     // added 54 here
-    buffer_size = av_image_get_buffer_size(AV_PIX_FMT_RGB24, width, height, 1) + 54;
+    buffer_size = av_image_get_buffer_size(AV_PIX_FMT_YUVJ420P, width, height, 1) + header_size;
 
 
     std::cout << "NUM BYTES AV AV_IMAGE: " << buffer_size << "\n"; 
@@ -61,14 +75,30 @@ bool VideoFormat::InitialSetup(char* filename) {
 
     buffer = (uint8_t*) av_malloc(buffer_size);
 
-    av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, buffer + 54,
-                         AV_PIX_FMT_RGB24, width, height, 1);
+
+    rgbFrame->format = AV_PIX_FMT_YUVJ420P;
+    rgbFrame->width  = width;   
+    rgbFrame->height = height;
+
+    av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, buffer + header_size,
+                         AV_PIX_FMT_YUVJ420P, width, height, 1);
 
     swsCtx = sws_getContext(
         width, height, codecCtx->pix_fmt,
-        width, height, AV_PIX_FMT_RGB24,
+        width, height, AV_PIX_FMT_YUVJ420P,
         SWS_BILINEAR, nullptr, nullptr, nullptr
     );
+
+    const AVCodec* jpegCodec = avcodec_find_encoder(AV_CODEC_ID_MJPEG);
+    jpegCtx = avcodec_alloc_context3(jpegCodec);
+
+    jpegCtx->pix_fmt = AV_PIX_FMT_YUVJ420P;
+    jpegCtx->height = height;
+    jpegCtx->width = width;
+    jpegCtx->time_base = (AVRational){1, 25};\
+    jpegCtx->color_range = AVCOL_RANGE_JPEG;
+
+    avcodec_open2(jpegCtx, jpegCodec, NULL);
 
     time_base = fmtCtx->streams[videoStream]->time_base;
 
@@ -98,6 +128,11 @@ bool VideoFormat::InitialRead() {
     }
 
     assert(videoStream != -1);
+
+
+
+    AVPacket* out_pkt = av_packet_alloc();
+
 
     int frame_count = 0;
     while (true) {
@@ -136,11 +171,34 @@ bool VideoFormat::InitialRead() {
                     return false;
                 }
                 
-                PushFrame();
+                
+                if (avcodec_send_frame(jpegCtx, rgbFrame) < 0 ) {
+
+                    std::cout << "failed to send\n";
+
+                }
+
+                while (true) {
+                    int ret = avcodec_receive_packet(jpegCtx, out_pkt);
+
+
+
+                    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
+                        break;
+                    }
+                    if (ret == -1) { 
+                        std::cout << "encoder error\n";
+                    }
+
+                    std::cout << "FRAME HAS BEEN ADDED: " << out_pkt->size << "\n";
+                    PushFrame(out_pkt->data, out_pkt->size);
+                    av_packet_unref(out_pkt); // outside encode loop
+                }
 
                 double pts_time = frame->best_effort_timestamp * av_q2d(time_base);
                 if ((double) max_seconds < pts_time) {
                     av_packet_unref(pkt);
+                    av_packet_unref(out_pkt);
                     return true;
                 }
             } 
@@ -151,12 +209,16 @@ bool VideoFormat::InitialRead() {
 
 
 
-bool VideoFormat::PushFrame() {
+bool VideoFormat::PushFrame(uint8_t* buffer_ptr, uint32_t size) {
     double pts_time = frame->best_effort_timestamp * av_q2d(time_base);
 
     AddHeader(buffer);
 
-    std::vector<uint8_t> compressed = compressBuffer(buffer, buffer_size);
+    //std::vector<uint8_t> compressed = compressBuffer(buffer_ptr, size);
+
+    std::vector<uint8_t> compressed;
+    compressed.resize(size);
+    memcpy(compressed.data(), buffer_ptr, size);
 
     CompressedFrame new_frame_buffer;
 
@@ -179,6 +241,8 @@ uint32_t VideoFormat::GetFrameIndex(double time_stamp) {
     uint32_t left = 0;
     uint32_t right = frame_array.size() - 1;
 
+    assert(frame_array.size() > 0);
+
     while (1) {
         uint32_t middle = (left + right)/2;
 
@@ -199,11 +263,23 @@ void VideoFormat::ProcessFrames(uint32_t& frame_index, uint32_t number_frames, h
 
     std::cout << "number of frames:" << number_frames << "\n";
     for (int i = 0; i < number_frames; ++i) { 
+
+        assert(frame_index < frame_array.size());
+
         if (frame_index < frame_array.size()) {
             CompressedFrame c_frame = frame_array[frame_index];
-            uint32_t half = c_frame.buffer_size / 2;
-            ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr), half);
-            ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr + half), c_frame.buffer_size - half);
+
+
+
+
+            
+            std::cout << "BUFFER SIZE: " << c_frame.buffer_size << "\n";
+
+            for (int i = 0; i < 10; ++i) { 
+                if (c_frame.buffer_size <= i) { break; }
+                std::cout << c_frame.buffer_ptr[i] << "\n";
+            }
+            ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr), c_frame.buffer_size);
         }
         else { 
             break;

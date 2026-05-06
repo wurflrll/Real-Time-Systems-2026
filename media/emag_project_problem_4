@@ -41,3 +41,6 @@ b = Im \{-\omega^2\mu_0\epsilon_0(\epsilon_{\infty}+\frac{\epsilon_s-\epsilon_{\
 \frac{\partial^2 E}{\partial z^2}=((ja)z+jb+c)E(z)
 
 S = \frac{1}{2} E \times \bar H
+
+
+k = n \frac{w}{c}

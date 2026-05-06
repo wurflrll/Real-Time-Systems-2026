@@ -2,5 +2,5 @@ EQUATION FOR k with respect to n and e_eff
 
 
 Integrating K:
-E(z) =E_2e^{-j\int_{0}^{z}k(z_0)dz_0}
+E(z) =E_2e^{-j\int_{0}^{z}\sqrt{\epsilon_{eff}}dz_0}=\hat{y}0.2022e^{j(0.06541-\frac{w}{c}\int_{0}^{z}\sqrt{\epsilon_{eff}}dz_0)}
 
