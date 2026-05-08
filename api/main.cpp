@@ -85,10 +85,8 @@ int main() {
             new_connection = scheduler.AddNewRequest(request_info, ws);
             break;
         };
-        ws.send("good terminator...");
-
         auto start = std::chrono::high_resolution_clock::now();
-        while (!new_connection->finished) {   
+        while (!new_connection->finished.load()) {   
             auto end = std::chrono::high_resolution_clock::now();
             if (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() > 200000) {
                 std::cout << "a timeout has occurred\n";
@@ -99,6 +97,11 @@ int main() {
         }
         delete new_connection;
         ws.send("Message finished\n");
+
+
+        std::cout << "MESSAGE OVER" << "\n\n";
+        ws.close();
+
     });
 
 

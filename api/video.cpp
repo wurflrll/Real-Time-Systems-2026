@@ -1,24 +1,8 @@
 #include "video.h"
 
 
-
-
 const uint32_t max_seconds = 50;
 
-
-void SendBuffer(const std::vector<uint8_t>& data, httplib::ws::WebSocket &ws) {
-    uint32_t half = data.size() / 2;
-    //ws.send(reinterpret_cast<const char*>(data.data()), half);
-    //ws.send(reinterpret_cast<const char*>(data.data() + half), data.size() - half);
-
-
-    std::cout << "DATA SIZE: " << data.size() << "\n";
-    for (int i = 0; i < 10; ++i) { 
-        std::cout << data[i] << "\n";
-    }
-    ws.send(reinterpret_cast<const char*>(data.data()), data.size());
-
-}
 
 bool VideoFormat::InitialSetup(char* filename) {
 
@@ -264,24 +248,18 @@ void VideoFormat::ProcessFrames(uint32_t& frame_index, uint32_t number_frames, h
     std::cout << "number of frames:" << number_frames << "\n";
     for (int i = 0; i < number_frames; ++i) { 
 
+
+        std::cout << "index i: " << i << "\n";
         assert(frame_index < frame_array.size());
 
         if (frame_index < frame_array.size()) {
+            std::cout << "before send...\n";
             CompressedFrame c_frame = frame_array[frame_index];
-
-
-
-
-            
-            std::cout << "BUFFER SIZE: " << c_frame.buffer_size << "\n";
-
-            for (int i = 0; i < 10; ++i) { 
-                if (c_frame.buffer_size <= i) { break; }
-                std::cout << c_frame.buffer_ptr[i] << "\n";
-            }
-            ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr), c_frame.buffer_size);
+            std::cout << "send state: " << ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr), c_frame.buffer_size) << "\n";;
+            std::cout << "after send\n";
         }
         else { 
+            std::cout << "ESCAPED THE COND.\n";
             break;
         }
         frame_index += 1;

@@ -8,6 +8,8 @@ uint32_t request_size = 12;
 
 extern VideoFormat* video_format_1;
 
+int count_connections = 0;
+
 std::ostream& operator<<(std::ostream& os, const RequestInfo& req) {
     os << "start: " << req.start_second << "\n";
     os << "number frames: " << req.number_frames << "\n";
@@ -33,6 +35,11 @@ void Connection::InitialWork() {
     // TODO: delete this: this is only for experiment results
     //strcpy(movie_file, "media/video_1.mp4");  
 
+    // if (!socket->is_open()) { 
+    //     std::cout << "EARLY EXIT\n";
+    //     return;
+    // }
+
     video_format = video_format_1;
 
     frame_index = video_format->GetFrameIndex((double) request_info.start_second);
@@ -41,7 +48,11 @@ void Connection::InitialWork() {
 
     video_format->ProcessFrames(frame_index, request_info.number_frames, *socket);
 
-    finished = true;
+    count_connections++;
+
+    std::cout << "Connections Count " << count_connections << "\n";
+
+    finished.store(true);
 
     std::cout << "some initial work, id: " << id << "\n";
 }

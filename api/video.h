@@ -76,5 +76,3 @@ class VideoFormat {
 
     void AddHeader(uint8_t* buffer_ptr);
 };
-
-void SendBuffer(const std::vector<uint8_t>& data, httplib::ws::WebSocket &ws);

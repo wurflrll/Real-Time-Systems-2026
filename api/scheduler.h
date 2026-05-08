@@ -5,6 +5,7 @@
 #include <mutex>
 #include <chrono>
 #include <thread>
+#include <atomic>
 
 #include "video.h"
 
@@ -31,7 +32,7 @@ class Connection {
 
     public:
 
-    bool finished;
+    std::atomic<bool> finished{false};
     uint32_t id;
 
     Connection() { }

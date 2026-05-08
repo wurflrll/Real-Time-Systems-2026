@@ -97,10 +97,4 @@ Client 5: start_latency=21.4739s total_latency=22.7497s
 Client 6: start_latency=24.7493s total_latency=25.9318s
 Client 7: start_latency=28.0747s total_latency=29.4078s
 Client 8: start_latency=31.4513s total_latency=32.8800s
-Client 9: start_latency=34.7714s total_latency=35.9885sClient 0: start_latency=1.6876s total_latency=2.2601s
-Client 1: start_latency=4.3795s total_latency=5.0621s
-Client 2: start_latency=7.1819s total_latency=7.7270s
-Client 3: start_latency=9.8424s total_latency=14.0146s
-Client 4: start_latency=15.9789s total_latency=16.7117s
-Client 5: start_latency=18.7236s total_latency=19.2619s
-Client 6: start_latency=21.4097s total_latency=22.0023s
+Client 9: start_latency=34.7714s total_latency=35.9885s
