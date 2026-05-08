@@ -22,7 +22,7 @@ async def client(client_id, queue):
     await asyncio.sleep(client_id * 0.05)  # 50ms apart
 
     async with websockets.connect(SERVER) as ws:
-        frames = 50
+        frames = 10
         start = time.time()
 
         payload = struct.pack("III", 5, frames, 1)

@@ -44,21 +44,40 @@ void Connection::InitialWork() {
 
     frame_index = video_format->GetFrameIndex((double) request_info.start_second);
 
-    std::cout << "FRAME INDEX: " << frame_index << "\n";
-
-    video_format->ProcessFrames(frame_index, request_info.number_frames, *socket);
-
     count_connections++;
 
     std::cout << "Connections Count " << count_connections << "\n";
 
     finished.store(true);
 
+    start_time = std::chrono::high_resolution_clock::now();
     std::cout << "some initial work, id: " << id << "\n";
 }
 
 bool Connection::Finished() { 
     return finished;
+}
+
+
+// returns true if processed all frames
+bool Connection::GetFrames(uint32_t num_frames) { 
+
+    if (num_frames > request_info.number_frames) {
+        num_frames = request_info.number_frames;
+        request_info.number_frames = 0;
+    }
+    else {
+        request_info.number_frames -= num_frames;
+    }
+    frame_index += num_frames;
+    video_format->ProcessFrames(frame_index, num_frames, *socket);
+
+    frames_sent += num_frames; 
+
+    if (request_info.number_frames == 0) {
+        return true;
+    }
+    return false;
 }
 
 Connection* Scheduler::AddNewRequest(RequestInfo request_info, httplib::ws::WebSocket& ws) {
@@ -71,18 +90,33 @@ Connection* Scheduler::AddNewRequest(RequestInfo request_info, httplib::ws::WebS
 
 void Scheduler::Run() {
     while (true) {
-        std::cout << "running...\n";
-        std::this_thread::sleep_for(2500ms);
-        if (connections.size() == 0) {
-            continue;
+        LST();
+    }
+}
+
+void Scheduler::LST() {
+
+    double frame_to_duration = 100000000;
+    int index = -1;
+
+    for (int i = 0; i < connections.size(); ++i) {
+        Connection* connection = connections[i];
+        if (!connection->initialized) {
+            connection->InitialWork();
         }
+        auto time_now = std::chrono::high_resolution_clock::now();
+        uint32_t time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>
+        (time_now - connection->start_time).count();
 
-        Connection* connection = connections[0];
-
-        connection->InitialWork();
-
+        double ratio = ((double) connection->frames_sent) / time_elapsed;
+        if (ratio < frame_to_duration) {
+            frame_to_duration = ratio;
+            index = i;
+        }
+    }
+    if (index != -1 && connections[index]->GetFrames(100)) {
         connection_mutex.lock();
-        connections.erase(connections.begin());
-        connection_mutex.unlock();
+        connections.erase(connections.begin() + index);
+        conncetion_mutex.unlock();
     }
 }

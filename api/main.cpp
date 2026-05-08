@@ -85,6 +85,10 @@ int main() {
             new_connection = scheduler.AddNewRequest(request_info, ws);
             break;
         };
+
+
+        // timeout after 200 seconds:
+
         auto start = std::chrono::high_resolution_clock::now();
         while (!new_connection->finished.load()) {   
             auto end = std::chrono::high_resolution_clock::now();
@@ -98,12 +102,10 @@ int main() {
         delete new_connection;
         ws.send("Message finished\n");
 
-
         std::cout << "MESSAGE OVER" << "\n\n";
         ws.close();
 
     });
-
 
     std::thread scheduler_thread(&Scheduler::Run, &scheduler);
 

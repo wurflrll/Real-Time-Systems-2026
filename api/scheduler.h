@@ -32,6 +32,9 @@ class Connection {
 
     public:
 
+    uint32_t frames_sent = 0;
+    std::chrono::time_point start_time;
+    bool initialized = false;
     std::atomic<bool> finished{false};
     uint32_t id;
 
@@ -42,6 +45,7 @@ class Connection {
         socket = &ws;
         finished = false;
     }
+    bool Connection::GetFrames(uint32_t num_frames);
     void InitialWork();
     bool Finished();
 };
