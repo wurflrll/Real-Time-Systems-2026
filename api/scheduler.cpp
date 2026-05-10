@@ -44,11 +44,13 @@ void Connection::InitialWork() {
 
     frame_index = video_format->GetFrameIndex((double) request_info.start_second);
 
+    std::cout << "FRAME INDEX ORIGINAL: " << frame_index << "\n";
+
+
+
     count_connections++;
 
     std::cout << "Connections Count " << count_connections << "\n";
-
-    finished.store(true);
 
     start_time = std::chrono::high_resolution_clock::now();
     std::cout << "some initial work, id: " << id << "\n";
@@ -69,10 +71,13 @@ bool Connection::GetFrames(uint32_t num_frames) {
     else {
         request_info.number_frames -= num_frames;
     }
-    frame_index += num_frames;
     video_format->ProcessFrames(frame_index, num_frames, *socket);
 
+    frame_index += num_frames;
+
     frames_sent += num_frames; 
+
+    assert(frame_index < 2500);
 
     if (request_info.number_frames == 0) {
         return true;
@@ -94,6 +99,20 @@ void Scheduler::Run() {
     }
 }
 
+
+void Scheduler::PRQ() {
+    for (int i = 0; i < connections.size(); ++i) {
+        Connection* connection = connections[i];
+        connection->InitialWork();
+        connection->GetFrames(1000000000); // max number to send all set at once
+ 
+        connection_mutex.lock();
+        connections.erase(connections.begin() + i);
+        connection_mutex.unlock();
+    }
+
+}
+
 void Scheduler::LST() {
 
     double frame_to_duration = 100000000;
@@ -108,15 +127,23 @@ void Scheduler::LST() {
         uint32_t time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>
         (time_now - connection->start_time).count();
 
+        std::cout << "TIME ELAPSED: " << time_elapsed << "\n";
+        std::cout << "FRAMES SENT: " << ((double) connection->frames_sent) << "\n";
+
         double ratio = ((double) connection->frames_sent) / time_elapsed;
+        std::cout << "RATIO: " << ratio << "\n";
         if (ratio < frame_to_duration) {
             frame_to_duration = ratio;
             index = i;
         }
     }
-    if (index != -1 && connections[index]->GetFrames(100)) {
-        connection_mutex.lock();
-        connections.erase(connections.begin() + index);
-        conncetion_mutex.unlock();
+    std::cout << "index: " << index << "\n";
+    std::cout << "num connections: " << connections.size() << "\n";
+    if (index != -1) {
+        if(connections[index]->GetFrames(100)) { // frames are sent
+            connection_mutex.lock();
+            connections.erase(connections.begin() + index);
+            connection_mutex.unlock();
+        }
     }
 }

@@ -7,25 +7,28 @@ submit_button.addEventListener("click", Start_Stream);
 
 let second_limit = 5000;
 
-const FPS = 24;
-const FRAME_TIME = 1000 / FPS;
+// 24 fps * 20 seconds
+let frames_per_call = 20 * 24;
 
-let frames_per_call = 20 * FPS;
+const FPS = 24;
+const FRAME_DELAY = 1000 / FPS;
 
 async function Start_Stream() {
   let second = parseInt(document.getElementById("start second").value);
 
-  console.log("second:", second);
+  console.log("Starting at second:", second);
 
   while (second < second_limit) {
-    console.log("read once");
 
+    // request and play one chunk
     await ReadSet(second);
 
-    break;
+    // advance by the duration we just played
+    second += frames_per_call / FPS;
+
+    console.log("next second:", second);
   }
 }
-
 
 async function ReadSet(second) {
   return new Promise((resolve, reject) => {
@@ -33,92 +36,79 @@ async function ReadSet(second) {
     let socket = new WebSocket("ws://187.124.174.169:8080/ws");
     socket.binaryType = "blob";
 
-    // Queue of decoded images waiting to display
-    const frameQueue = [];
+    let frameQueue = [];
+    let playing = false;
+    let socketClosed = false;
 
-    let playbackStarted = false;
+    let num_sent = 0;
 
-    let count = 0;
+    socket.addEventListener("open", () => {
+      console.log("Socket opened");
 
-    let receive_count = 0;
-
-    // ---------------------------------------------------
-    // Fixed framerate renderer
-    // ---------------------------------------------------
-    function startPlaybackLoop() {
-      if (playbackStarted) return;
-
-      playbackStarted = true;
-
-      const interval = setInterval(() => {
-
-        // No frames available yet
-        if (frameQueue.length === 0) {
-          return;
-        }
-
-        count += 1;
-        console.log("num frames: ", count);
-    
-        const img = frameQueue.shift();
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        ctx.drawImage(
-          img,
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        );
-        if (count == 480) {
-          resolve();
-        }
-
-      }, FRAME_TIME);
-
-      socket.addEventListener("close", () => {
-        clearInterval(interval);
-      });
-    }
-
-    socket.addEventListener("open", async () => {
-
-      let arr = new Uint32Array([
-        second,
-        frames_per_call,
-        1
-      ]);
-
+      // request frames
+      let arr = new Uint32Array([second, frames_per_call, 1]);
       socket.send(arr.buffer);
     });
 
     socket.addEventListener("message", async (event) => {
 
-      if (!(event.data instanceof Blob)) {
+      if (event.data instanceof Blob) {
+
+        let image_buffer = new Uint8Array(await event.data.arrayBuffer());
+
+        const blob = new Blob([image_buffer], { type: "image/jpeg" });
+
+        const img = new Image();
+
+        img.onload = () => {
+          frameQueue.push(img);
+
+          // start playback once first frame arrives
+          if (!playing) {
+            PlayFrames();
+          }
+        };
+
+        img.src = URL.createObjectURL(blob);
+
+      } else {
         console.log("not a blob");
-        console.log(event.data);
-        return;
-      }
-
-      try {
-
-        // Convert blob -> image
-        const imageBitmap = await createImageBitmap(event.data);
-
-        // Queue frame instead of rendering immediately
-        receive_count += 1;
-        frameQueue.push(imageBitmap);
-
-        console.log("Received: ", receive_count);
-
-        // Start playback once first frame arrives
-        startPlaybackLoop();
-
-      } catch (err) {
-        console.error("Failed to decode frame:", err);
       }
     });
+
+    async function PlayFrames() {
+      playing = true;
+
+      while (true) {
+
+        if (frameQueue.length > 0) {
+
+          console.log("NUM SENT: ", num_sent);
+
+          const img = frameQueue.shift();
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          num_sent += 1;
+
+          // maintain 24 FPS
+          await new Promise(r => setTimeout(r, FRAME_DELAY));
+
+        } else {
+
+          // if socket already closed and no frames remain, done
+          if (socketClosed) {
+            break;
+          }
+
+          // wait briefly for more frames
+          await new Promise(r => setTimeout(r, 1));
+        }
+      }
+
+      resolve();
+    }
 
     socket.addEventListener("error", (err) => {
       console.error("Socket error:", err);
@@ -127,7 +117,7 @@ async function ReadSet(second) {
 
     socket.addEventListener("close", (event) => {
       console.log("Socket closed:", event.code, event.reason);
-      //resolve();
+      socketClosed = true;
     });
   });
 }

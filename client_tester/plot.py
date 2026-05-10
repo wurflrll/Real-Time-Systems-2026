@@ -45,6 +45,6 @@ avg_total.plot(kind="bar")
 
 plt.ylabel("Average Total Latency (s)")
 plt.xlabel("Client ID")
-plt.title("Average Total Latency per Client (f = 10)")
+plt.title("Average Total Latency per Client (f = 50)")
 
 plt.show()

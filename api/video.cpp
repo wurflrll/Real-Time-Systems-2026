@@ -243,8 +243,10 @@ uint32_t VideoFormat::GetFrameIndex(double time_stamp) {
 }
 
     
-void VideoFormat::ProcessFrames(uint32_t& frame_index, uint32_t number_frames, httplib::ws::WebSocket &ws) {
+void VideoFormat::ProcessFrames(uint32_t frame_index, uint32_t number_frames, httplib::ws::WebSocket &ws) {
 
+
+    std::cout << "frame index: " << frame_index << "\n";
     std::cout << "number of frames:" << number_frames << "\n";
     for (int i = 0; i < number_frames; ++i) { 
 

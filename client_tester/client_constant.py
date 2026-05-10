@@ -5,9 +5,6 @@ import struct
 
 SERVER = "ws://187.124.174.169:8080/ws"
 
-FRAMES = 2000
-STAGGER_SECONDS = 0.05
-
 
 async def writer(queue):
     with open("results.txt", "a") as f:
@@ -21,13 +18,12 @@ async def writer(queue):
             print(line)
             f.flush()
 
-
 async def run_single_client(client_id, queue):
     try:
         async with websockets.connect(SERVER) as ws:
             start = time.time()
 
-            payload = struct.pack("III", 5, FRAMES, 1)
+            payload = struct.pack("III", 2, 2000, 1)
 
             await ws.send(payload)
 
@@ -64,10 +60,6 @@ async def run_single_client(client_id, queue):
 
 
 async def client_worker(worker_id, queue, stop_time):
-    """
-    Continuously creates new connections until stop_time is reached.
-    Each finished connection is immediately replaced by another.
-    """
 
     # Initial stagger
     await asyncio.sleep(worker_id * STAGGER_SECONDS)

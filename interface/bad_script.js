@@ -66,44 +66,6 @@ async function ReadSet(second) { return new Promise( (resolve, reject) => {
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       };
       img.src = URL.createObjectURL(blob);
-
-
-      // counter++;
-      // if (counter == 1) {
-      //   buffer = new Uint8Array(await event.data.arrayBuffer());
-      // }
-      // if (counter == 2) {
-      //   let second_buffer = new Uint8Array(await event.data.arrayBuffer());
-      //   let double_buffer = new Uint8Array(buffer.length + second_buffer.length);
-      //   double_buffer.set(buffer);
-      //   double_buffer.set(second_buffer, buffer.length);
-      //   counter = 0;
-      //   frames_received++;
-      //   const decompressed = pako.inflate(double_buffer);
-      //   const blob = new Blob([decompressed], { type: "image/jpg" });
-      
-      //   console.log(blob.size);
-
-      //   const img = new Image();
-      //   img.onload = () => {
-      //     // scale image to fit the existing canvas size
-      //     ctx.clearRect(0, 0, canvas.width, canvas.height);
-      //     ctx.setTransform(1, 0, 0, -1, 0, canvas.height);
-      //     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      //     // ctx.drawImage(
-      //     //   img,
-      //     //   0, 0, img.width, img.height,      // source image area
-      //     //   0, 0, canvas.width, canvas.height // destination canvas area (scaled)
-      //     // );
-      //     // 
-      //     //document.getElementById("start second").value = second + frames_received / 24;
-      //   };
-      //   img.src = URL.createObjectURL(blob);
-      //   if (frames_received == frames_per_call) {
-      //     socket.close();
-      //   }
-      //}
     }
     else {
       console.log("not a blob");
