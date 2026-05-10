@@ -5,6 +5,11 @@ import struct
 
 SERVER = "ws://187.124.174.169:8080/ws"
 
+FRAME_REQUEST = 2000
+
+GRANULARITY_X = 100
+
+STAGGER_SECONDS = 0.01
 
 async def writer(queue):
     with open("results.txt", "a") as f:
@@ -23,7 +28,7 @@ async def run_single_client(client_id, queue):
         async with websockets.connect(SERVER) as ws:
             start = time.time()
 
-            payload = struct.pack("III", 2, 2000, 1)
+            payload = struct.pack("III", 2, FRAME_REQUEST, GRANULARITY_X)
 
             await ws.send(payload)
 
@@ -32,7 +37,7 @@ async def run_single_client(client_id, queue):
             received = 0
             first_frame_time = None
 
-            while received < FRAMES:
+            while received < FRAME_REQUEST:
                 msg = await ws.recv()
                 now = time.time()
 
@@ -56,7 +61,9 @@ async def run_single_client(client_id, queue):
             await queue.put(result)
 
     except Exception as e:
-        await queue.put(f"Client {client_id} ERROR: {e}")
+        await queue.put(
+        f"Client {client_id} ERROR: {type(e).__name__}: {repr(e)}"
+        )
 
 
 async def client_worker(worker_id, queue, stop_time):

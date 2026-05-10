@@ -1,12 +1,364 @@
-Client 6: start_latency=0.2866s total_latency=0.8460s
-Client 7: start_latency=1.1623s total_latency=1.7562s
-Client 1: start_latency=2.6454s total_latency=3.2059s
-Client 2: start_latency=3.7181s total_latency=4.4449s
-Client 0: start_latency=4.5867s total_latency=5.1418s
-Client 9: start_latency=4.8455s total_latency=5.4311s
-Client 4: start_latency=5.8461s total_latency=6.4187s
-Client 3: start_latency=6.6470s total_latency=7.1989s
-Client 8: start_latency=7.9453s total_latency=8.5300s
-Client 5: start_latency=9.0104s total_latency=9.6173s
-Client 4: start_latency=4.7692s total_latency=30.6157s
-Client 1: start_latency=16.1590s total_latency=40.9392s
+Client 1-0: start_latency=0.1584s total_latency=7.8757s
+Client 4-0: start_latency=0.2507s total_latency=13.1379s
+Client 0-0: start_latency=0.2903s total_latency=13.8420s
+Client 3-0: start_latency=0.2619s total_latency=13.8741s
+Client 2-0: start_latency=0.2800s total_latency=15.1987s
+Client 1-1: start_latency=0.1594s total_latency=9.0049s
+Client 4-1: start_latency=0.1610s total_latency=6.9984s
+Client 2-1: start_latency=0.4328s total_latency=6.3783s
+Client 4-2: start_latency=0.1641s total_latency=4.5531s
+Client 2-2: start_latency=0.1750s total_latency=6.6972s
+Client 3-1: start_latency=0.2253s total_latency=17.8736s
+Client 0-1: start_latency=0.1661s total_latency=18.9825s
+Client 2-3: start_latency=0.1688s total_latency=4.6698s
+Client 1-2 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-2: start_latency=0.4287s total_latency=5.3730s
+Client 2-4: start_latency=0.6438s total_latency=6.7422s
+Client 0-2: start_latency=0.1613s total_latency=12.3940s
+Client 4-3 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-3: start_latency=0.4566s total_latency=7.7862s
+Client 0-3: start_latency=0.1610s total_latency=5.0642s
+Client 4-4: start_latency=0.1665s total_latency=8.3226s
+Client 3-4: start_latency=0.1674s total_latency=9.3063s
+Client 1-3 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-4: start_latency=0.1610s total_latency=8.3546s
+Client 2-5 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-5: start_latency=0.1632s total_latency=8.0899s
+Client 1-4: start_latency=0.2798s total_latency=8.2112s
+Client 2-6: start_latency=0.1634s total_latency=9.2345s
+Client 4-6: start_latency=0.1678s total_latency=11.0898s
+Client 3-5: start_latency=0.2634s total_latency=19.7187s
+Client 1-5: start_latency=0.1615s total_latency=10.1997s
+Client 2-7: start_latency=0.1712s total_latency=6.9849s
+Client 0-5 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-6: start_latency=0.1636s total_latency=6.7828s
+Client 4-7: start_latency=0.4505s total_latency=10.6669s
+Client 3-6: start_latency=0.5403s total_latency=11.5555s
+Client 1-7: start_latency=0.1590s total_latency=4.5412s
+Client 3-7: start_latency=0.2584s total_latency=4.0191s
+Client 1-8: start_latency=0.4199s total_latency=6.0325s
+Client 2-8 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-6 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-9: start_latency=0.1603s total_latency=4.6843s
+Client 2-9: start_latency=0.1625s total_latency=4.9429s
+Client 4-8 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-10: start_latency=0.3701s total_latency=7.1862s
+Client 3-8 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-7: start_latency=0.2037s total_latency=13.0514s
+Client 4-9: start_latency=0.5888s total_latency=9.2116s
+Client 3-9: start_latency=0.1695s total_latency=5.5385s
+Client 0-0: start_latency=0.1598s total_latency=7.7243s
+Client 3-0: start_latency=0.1795s total_latency=12.2391s
+Client 1-0: start_latency=0.2352s total_latency=13.5391s
+Client 4-0: start_latency=0.1794s total_latency=14.0290s
+Client 2-0: start_latency=0.1816s total_latency=14.2709s
+Client 3-1: start_latency=0.3693s total_latency=4.8842s
+Client 0-1: start_latency=0.1577s total_latency=15.8478s
+Client 3-2: start_latency=0.1570s total_latency=6.5026s
+Client 1-1: start_latency=0.1601s total_latency=14.0332s
+Client 0-2: start_latency=0.2785s total_latency=7.6192s
+Client 1-2: start_latency=0.1599s total_latency=5.1507s
+Client 4-1 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-1 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-3: start_latency=0.1659s total_latency=4.3910s
+Client 2-2: start_latency=0.1971s total_latency=6.7983s
+Client 3-3: start_latency=0.1679s total_latency=18.7904s
+Client 4-2: start_latency=0.5914s total_latency=10.2893s
+Client 0-4: start_latency=0.5649s total_latency=12.3601s
+Client 2-3: start_latency=0.1595s total_latency=6.9264s
+Client 3-4: start_latency=0.1884s total_latency=7.9977s
+Client 1-3 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-5: start_latency=0.1649s total_latency=7.7574s
+Client 2-4: start_latency=0.1605s total_latency=9.8848s
+Client 1-4: start_latency=1.2316s total_latency=8.7236s
+Client 4-3 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-5: start_latency=0.1586s total_latency=12.3716s
+Client 3-5 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-5: start_latency=0.1589s total_latency=9.4500s
+Client 4-4: start_latency=0.3035s total_latency=9.7890s
+Client 0-6: start_latency=0.1649s total_latency=19.4451s
+Client 2-6: start_latency=0.1600s total_latency=8.2378s
+Client 4-5: start_latency=0.1633s total_latency=8.1405s
+Client 3-6: start_latency=0.1964s total_latency=15.5136s
+Client 0-7: start_latency=0.2420s total_latency=11.6488s
+Client 1-6 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-7: start_latency=0.1627s total_latency=6.9178s
+Client 4-6: start_latency=0.1779s total_latency=10.9567s
+Client 0-8: start_latency=0.2001s total_latency=11.5948s
+Client 2-7 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-8: start_latency=0.1751s total_latency=6.1530s
+Client 0-9: start_latency=0.2210s total_latency=4.4044s
+Client 1-7: start_latency=0.2692s total_latency=12.0901s
+Client 0-10: start_latency=0.4870s total_latency=5.9284s
+Client 1-8: start_latency=0.1655s total_latency=7.6457s
+Client 4-7 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-11: start_latency=0.1636s total_latency=7.1040s
+Client 2-8: start_latency=0.1615s total_latency=21.0863s
+Client 3-9 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-9: start_latency=0.1656s total_latency=8.1913s
+Client 4-8: start_latency=0.2127s total_latency=7.4829s
+Client 2-9: start_latency=0.1607s total_latency=8.4302s
+Client 1-10: start_latency=0.2426s total_latency=12.6729s
+Client 3-10: start_latency=0.2475s total_latency=13.0143s
+Client 0-12 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-9: start_latency=0.1656s total_latency=15.5890s
+Client 2-10: start_latency=0.1586s total_latency=9.6644s
+Client 1-11: start_latency=0.1608s total_latency=8.1684s
+Client 0-13: start_latency=0.7322s total_latency=6.8871s
+Client 1-12: start_latency=0.1593s total_latency=9.6303s
+Client 4-10: start_latency=0.1622s total_latency=13.3672s
+Client 3-11: start_latency=0.1797s total_latency=18.2257s
+Client 2-11: start_latency=0.2363s total_latency=14.7795s
+Client 0-14: start_latency=0.1625s total_latency=10.1676s
+Client 1-13: start_latency=0.1605s total_latency=6.4613s
+Client 4-11: start_latency=0.2922s total_latency=11.1841s
+Client 3-12: start_latency=0.1660s total_latency=12.9700s
+Client 2-12: start_latency=0.5996s total_latency=12.7211s
+Client 1-14: start_latency=0.1595s total_latency=8.7873s
+Client 4-12: start_latency=0.2407s total_latency=6.2900s
+Client 1-15: start_latency=0.1567s total_latency=6.3791s
+Client 0-15 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-13: start_latency=0.1621s total_latency=9.8367s
+Client 1-16: start_latency=0.1613s total_latency=3.5223s
+Client 1-17: start_latency=0.1582s total_latency=5.3122s
+Client 2-13: start_latency=0.5704s total_latency=19.3201s
+Client 0-16: start_latency=0.1595s total_latency=13.8766s
+Client 4-13 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-14: start_latency=0.3861s total_latency=8.6215s
+Client 3-14 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-18: start_latency=0.1586s total_latency=11.5029s
+Client 2-15: start_latency=0.1589s total_latency=8.0573s
+Client 4-14: start_latency=0.2074s total_latency=12.1781s
+Client 3-15: start_latency=0.2584s total_latency=12.8259s
+Client 0-17 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-19: start_latency=0.1709s total_latency=13.6241s
+Client 2-16: start_latency=0.1599s total_latency=9.0149s
+Client 4-15: start_latency=0.2619s total_latency=11.5609s
+Client 3-16: start_latency=0.2865s total_latency=6.7678s
+Client 4-16: start_latency=0.1609s total_latency=6.8936s
+Client 0-18: start_latency=0.1628s total_latency=16.1283s
+Client 2-17: start_latency=0.1601s total_latency=13.1018s
+Client 1-20: start_latency=0.2850s total_latency=17.9805s
+Client 3-17: start_latency=0.2001s total_latency=12.0094s
+Client 0-19: start_latency=0.1583s total_latency=5.1953s
+Client 2-18: start_latency=0.2774s total_latency=6.7094s
+Client 0-20: start_latency=0.1595s total_latency=4.2557s
+Client 4-17: start_latency=0.1676s total_latency=14.8248s
+Client 2-19: start_latency=0.6538s total_latency=5.5818s
+Client 4-18: start_latency=0.3844s total_latency=5.2220s
+Client 1-21 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-18 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-19: start_latency=0.1661s total_latency=5.2350s
+Client 2-20: start_latency=0.1597s total_latency=11.6300s
+Client 1-22: start_latency=0.1801s total_latency=4.4715s
+Client 0-21 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-19: start_latency=0.1781s total_latency=9.7028s
+Client 4-20: start_latency=0.6540s total_latency=9.6167s
+Client 0-22: start_latency=0.1781s total_latency=5.1996s
+Client 2-21: start_latency=0.3385s total_latency=11.6137s
+Client 0-23: start_latency=0.1681s total_latency=3.4252s
+Client 3-20: start_latency=0.3870s total_latency=13.3698s
+Client 1-23 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-22: start_latency=0.1602s total_latency=11.0896s
+Client 0-24: start_latency=0.1608s total_latency=10.7597s
+Client 3-21: start_latency=0.1622s total_latency=4.9448s
+Client 4-21 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-23: start_latency=1.0978s total_latency=5.6497s
+Client 4-22: start_latency=0.1597s total_latency=4.1991s
+Client 2-24: start_latency=0.1824s total_latency=8.6698s
+Client 4-23: start_latency=0.1594s total_latency=4.7984s
+Client 1-24 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-25: start_latency=0.1579s total_latency=4.1869s
+Client 0-25 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-22 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-24: start_latency=0.1614s total_latency=12.8993s
+Client 2-0: start_latency=0.2716s total_latency=9.5915s
+Client 0-0: start_latency=0.1617s total_latency=9.7551s
+Client 3-0: start_latency=0.2654s total_latency=15.3000s
+Client 4-0: start_latency=0.2612s total_latency=15.8860s
+Client 2-1: start_latency=0.1594s total_latency=6.1687s
+Client 1-0 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-1: start_latency=0.1595s total_latency=4.9125s
+Client 0-1: start_latency=0.2637s total_latency=11.1451s
+Client 1-1: start_latency=0.1598s total_latency=3.8597s
+Client 4-1: start_latency=0.1844s total_latency=12.5890s
+Client 1-2: start_latency=0.1604s total_latency=5.7249s
+Client 4-2: start_latency=0.1612s total_latency=5.1861s
+Client 2-2: start_latency=0.2043s total_latency=20.4553s
+Client 1-3: start_latency=0.3969s total_latency=5.5662s
+Client 3-2: start_latency=0.1688s total_latency=17.1191s
+Client 0-2 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-3: start_latency=0.3865s total_latency=4.7885s
+Client 1-4: start_latency=0.1593s total_latency=8.7094s
+Client 0-3: start_latency=0.1583s total_latency=5.0824s
+Client 1-5: start_latency=0.1582s total_latency=5.2278s
+Client 3-3: start_latency=0.1669s total_latency=15.4271s
+Client 4-3 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-6: start_latency=0.1599s total_latency=4.5895s
+Client 3-4: start_latency=0.6561s total_latency=6.4037s
+Client 2-4: start_latency=0.1735s total_latency=19.4269s
+Client 1-7: start_latency=0.5103s total_latency=7.1810s
+Client 4-4: start_latency=0.1592s total_latency=9.2085s
+Client 0-4 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-5: start_latency=0.2713s total_latency=4.8787s
+Client 0-5: start_latency=0.1605s total_latency=4.2423s
+Client 2-6: start_latency=0.1661s total_latency=9.0836s
+Client 0-6: start_latency=0.1614s total_latency=5.4383s
+Client 3-5: start_latency=0.1593s total_latency=19.8816s
+Client 2-7: start_latency=0.1614s total_latency=3.6192s
+Client 3-6: start_latency=0.1615s total_latency=3.9594s
+Client 1-8 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-5 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-9: start_latency=0.1608s total_latency=5.8695s
+Client 4-6: start_latency=0.2445s total_latency=8.5211s
+Client 3-7: start_latency=0.2708s total_latency=12.2501s
+Client 1-10: start_latency=0.1616s total_latency=6.5037s
+Client 0-7: start_latency=0.1663s total_latency=20.0232s
+Client 2-8 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-8: start_latency=0.1673s total_latency=4.0696s
+Client 1-11: start_latency=0.1594s total_latency=8.8357s
+Client 2-9: start_latency=0.1591s total_latency=5.4241s
+Client 1-12: start_latency=0.1603s total_latency=6.1889s
+Client 4-7 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-9: start_latency=0.1591s total_latency=14.9864s
+Client 2-10: start_latency=0.1671s total_latency=9.8989s
+Client 0-8: start_latency=0.1753s total_latency=20.0503s
+Client 1-13: start_latency=0.1627s total_latency=8.8993s
+Client 3-10: start_latency=0.1583s total_latency=5.3481s
+Client 1-14: start_latency=0.5380s total_latency=7.4003s
+Client 3-11: start_latency=0.1663s total_latency=7.9733s
+Client 2-11: start_latency=0.1966s total_latency=14.4829s
+Client 4-8: start_latency=0.1822s total_latency=19.0373s
+Client 1-15: start_latency=0.1610s total_latency=4.4841s
+Client 2-12: start_latency=0.1871s total_latency=6.0087s
+Client 0-9 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-16: start_latency=0.4687s total_latency=6.5775s
+Client 4-9: start_latency=0.4715s total_latency=11.7839s
+Client 1-17: start_latency=0.1576s total_latency=5.7491s
+Client 3-12: start_latency=0.1611s total_latency=19.9981s
+Client 1-18: start_latency=0.1595s total_latency=6.0954s
+Client 2-13: start_latency=0.1686s total_latency=16.7852s
+Client 0-10 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-10: start_latency=0.1630s total_latency=13.6894s
+Client 1-19: start_latency=0.1599s total_latency=4.9779s
+Client 0-11: start_latency=0.1773s total_latency=3.9985s
+Client 3-13: start_latency=0.1643s total_latency=14.6047s
+Client 1-20: start_latency=0.5640s total_latency=6.5298s
+Client 3-14: start_latency=0.1620s total_latency=5.6819s
+Client 2-14: start_latency=0.1730s total_latency=18.2418s
+Client 1-21: start_latency=0.2118s total_latency=11.0910s
+Client 4-11: start_latency=0.1641s total_latency=19.3786s
+Client 3-15: start_latency=0.1640s total_latency=7.4853s
+Client 1-22: start_latency=0.1651s total_latency=4.0271s
+Client 0-12 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-16: start_latency=0.3976s total_latency=5.6357s
+Client 4-12: start_latency=0.1754s total_latency=10.2135s
+Client 3-17: start_latency=0.1661s total_latency=5.2308s
+Client 2-15: start_latency=0.1831s total_latency=19.4327s
+Client 3-18: start_latency=0.1608s total_latency=7.6797s
+Client 2-16: start_latency=0.1663s total_latency=7.5130s
+Client 1-23 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-13 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-13: start_latency=0.2849s total_latency=14.5295s
+Client 3-19: start_latency=0.1582s total_latency=6.8145s
+Client 2-17: start_latency=0.2572s total_latency=11.1895s
+Client 3-20: start_latency=0.1675s total_latency=9.2233s
+Client 1-24: start_latency=0.1657s total_latency=14.9830s
+Client 2-18: start_latency=0.4344s total_latency=7.7653s
+Client 4-14: start_latency=0.1845s total_latency=17.8900s
+Client 1-25: start_latency=0.3514s total_latency=4.5634s
+Client 0-14 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-15: start_latency=0.1901s total_latency=4.0303s
+Client 0-15: start_latency=0.1615s total_latency=5.1793s
+Client 0-16: start_latency=0.1605s total_latency=3.9729s
+Client 3-21 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-17: start_latency=0.1595s total_latency=4.7413s
+Client 2-19 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-22: start_latency=0.2182s total_latency=5.6383s
+Client 1-26: start_latency=0.1710s total_latency=20.1266s
+Client 4-16 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-20: start_latency=0.4328s total_latency=5.6546s
+Client 1-27: start_latency=0.6081s total_latency=5.7493s
+Client 1-28: start_latency=0.1636s total_latency=4.3984s
+Client 0-18 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-29: start_latency=0.1603s total_latency=5.6453s
+Client 3-23: start_latency=0.1585s total_latency=18.5986s
+Client 4-17: start_latency=0.1638s total_latency=16.4421s
+Client 0-19: start_latency=0.1949s total_latency=5.3522s
+Client 2-21 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-18: start_latency=0.5617s total_latency=5.0506s
+Client 2-22: start_latency=0.1591s total_latency=4.4125s
+Client 2-23: start_latency=0.1677s total_latency=4.4835s
+Client 1-30: start_latency=0.2422s total_latency=17.5767s
+Client 3-24 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-24: start_latency=0.1603s total_latency=4.9882s
+Client 0-20: start_latency=0.1595s total_latency=18.0537s
+Client 1-31: start_latency=0.5177s total_latency=6.3047s
+Client 4-19 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 0-21: start_latency=0.1810s total_latency=7.5614s
+Client 2-25: start_latency=0.5219s total_latency=7.5619s
+Client 4-20: start_latency=0.3641s total_latency=4.6133s
+Client 3-25 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 1-32: start_latency=0.2972s total_latency=18.1917s
+Client 0-22: start_latency=0.1592s total_latency=13.2327s
+Client 2-26: start_latency=0.2836s total_latency=17.4245s
+Client 0-0 ERROR: ConnectionClosedError: ConnectionClosedError(None, Close(code=1011, reason='keepalive ping timeout'), None)
+Client 1-0 ERROR: ConnectionClosedError: ConnectionClosedError(None, Close(code=1011, reason='keepalive ping timeout'), None)
+Client 2-0 ERROR: ConnectionClosedError: ConnectionClosedError(None, Close(code=1011, reason='keepalive ping timeout'), None)
+Client 3-0 ERROR: ConnectionClosedError: ConnectionClosedError(None, Close(code=1011, reason='keepalive ping timeout'), None)
+Client 4-0 ERROR: ConnectionClosedError: ConnectionClosedError(None, Close(code=1011, reason='keepalive ping timeout'), None)
+Client 0-0: start_latency=0.1694s total_latency=7.8544s
+Client 4-0: start_latency=0.2799s total_latency=13.1933s
+Client 3-0: start_latency=0.2795s total_latency=13.3715s
+Client 2-0: start_latency=0.2790s total_latency=13.3805s
+Client 1-0: start_latency=0.2804s total_latency=14.1401s
+Client 0-1: start_latency=0.1896s total_latency=10.1981s
+Client 4-1: start_latency=0.1585s total_latency=7.0888s
+Client 3-1: start_latency=0.2538s total_latency=11.7144s
+Client 2-1: start_latency=0.2566s total_latency=12.0449s
+Client 0-2: start_latency=0.1610s total_latency=7.5995s
+Client 3-2: start_latency=0.1624s total_latency=3.7104s
+Client 2-2: start_latency=0.1756s total_latency=7.9601s
+Client 1-1 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-3: start_latency=0.1657s total_latency=7.6960s
+Client 2-3: start_latency=0.1972s total_latency=5.9141s
+Client 4-2 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-4: start_latency=0.2612s total_latency=5.1580s
+Client 2-4: start_latency=0.1680s total_latency=5.4334s
+Client 0-3 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 2-5: start_latency=0.1645s total_latency=4.7199s
+Client 1-2 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-3: start_latency=0.3925s total_latency=13.6069s
+Client 2-6: start_latency=0.1607s total_latency=4.5118s
+Client 1-3: start_latency=0.1652s total_latency=6.6323s
+Client 0-4: start_latency=0.1862s total_latency=16.1987s
+Client 3-5 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-4: start_latency=0.2151s total_latency=11.1205s
+Client 1-4: start_latency=0.1589s total_latency=4.5236s
+Client 3-6: start_latency=0.4116s total_latency=6.5379s
+Client 3-7: start_latency=0.1775s total_latency=6.0074s
+Client 2-7 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-8: start_latency=0.1645s total_latency=4.0335s
+Client 0-5 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 4-5: start_latency=0.1621s total_latency=17.8862s
+Client 1-5 ERROR: ConnectionClosedError: ConnectionClosedError(None, None, None)
+Client 3-9: start_latency=0.1607s total_latency=6.9088s
+Client 2-8: start_latency=0.1661s total_latency=14.1659s
+Client 1-6: start_latency=0.1630s total_latency=6.4721s
+Client 0-6: start_latency=0.1586s total_latency=12.4237s
+Client 3-10: start_latency=0.2045s total_latency=11.1112s
+Client 1-7: start_latency=0.1621s total_latency=7.3423s
+Client 0-7: start_latency=0.6900s total_latency=6.7518s
+Client 4-6: start_latency=0.1752s total_latency=19.8606s
+Client 1-8: start_latency=0.1597s total_latency=6.7658s
+Client 2-9: start_latency=0.1648s total_latency=17.9384s
+Client 0-8: start_latency=0.1634s total_latency=8.3836s
+Client 1-9: start_latency=0.1695s total_latency=6.5761s
+Client 3-11: start_latency=0.1636s total_latency=18.8824s
+Client 2-10: start_latency=0.1631s total_latency=11.8910s
+Client 1-10: start_latency=0.1600s total_latency=7.4542s
+Client 4-7: start_latency=0.1997s total_latency=19.2273s
+Client 3-12: start_latency=0.3498s total_latency=8.8305s
+Client 2-11: start_latency=0.5509s total_latency=7.4076s
+Client 0-9: start_latency=0.1634s total_latency=16.8032s
+Client 3-13: start_latency=0.1595s total_latency=4.1980s
