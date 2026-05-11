@@ -43,11 +43,10 @@ class Connection {
         id = rand() % 100000;
         request_info = req;
         socket = &ws;
-        finished = false;
+        start_time = std::chrono::high_resolution_clock::now();
     }
     bool GetFrames(uint32_t num_frames);
     void InitialWork();
-    bool Finished();
 };
 
 
@@ -59,7 +58,9 @@ class Scheduler {
 
     public:
 
-    Scheduler() = default;
+    Scheduler() {
+        connections.reserve(100);
+    };
 
     Connection* AddNewRequest(RequestInfo request_info, httplib::ws::WebSocket& ws);
 

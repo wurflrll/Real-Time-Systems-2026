@@ -1,7 +1,7 @@
 #include "video.h"
 
 
-const uint32_t max_seconds = 50;
+const uint32_t max_seconds = 250;
 
 
 bool VideoFormat::InitialSetup(char* filename) {
@@ -173,8 +173,6 @@ bool VideoFormat::InitialRead() {
                     if (ret == -1) { 
                         std::cout << "encoder error\n";
                     }
-
-                    std::cout << "FRAME HAS BEEN ADDED: " << out_pkt->size << "\n";
                     PushFrame(out_pkt->data, out_pkt->size);
                     av_packet_unref(out_pkt); // outside encode loop
                 }
@@ -245,28 +243,17 @@ uint32_t VideoFormat::GetFrameIndex(double time_stamp) {
     
 void VideoFormat::ProcessFrames(uint32_t frame_index, uint32_t number_frames, httplib::ws::WebSocket &ws) {
 
-
-    std::cout << "frame index: " << frame_index << "\n";
-    std::cout << "number of frames:" << number_frames << "\n";
     for (int i = 0; i < number_frames; ++i) { 
 
-
-        std::cout << "index i: " << i << "\n";
         assert(frame_index < frame_array.size());
 
         if (frame_index < frame_array.size()) {
-            std::cout << "before send...\n";
             CompressedFrame c_frame = frame_array[frame_index];
-            std::cout << "send state: " << ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr), c_frame.buffer_size) << "\n";;
-            std::cout << "after send\n";
+            ws.send(reinterpret_cast<const char*>(c_frame.buffer_ptr), c_frame.buffer_size);
         }
-        else { 
-            std::cout << "ESCAPED THE COND.\n";
-            break;
-        }
+        assert(frame_index < frame_array.size());
         frame_index += 1;
     }
-    std::cout << "done sending\n";
 }
 
 

@@ -21,6 +21,8 @@ extern std::string terminal;
 
 VideoFormat* video_format_1;
 
+extern uint32_t granularity_x;
+
 
 int main() {
 
@@ -82,9 +84,21 @@ int main() {
             RequestInfo request_info;
             memcpy(&request_info, message.data(), REQUEST_SIZE);
             std::cout << "request info: " << request_info << "\n";
+
+
+            //TODO: FIX THIS, ONLY USING THIS NOW FOR CONVENIENCE IN EXPERIMENT
+            granularity_x = request_info.movie_index;
+
+            std::cout << "Initial Granularity: " << granularity_x << "\n";
+
+            assert(granularity_x != 0);
+
+
             new_connection = scheduler.AddNewRequest(request_info, ws);
             break;
         };
+
+        assert(new_connection != nullptr);
 
 
         // timeout after 200 seconds:
@@ -94,13 +108,15 @@ int main() {
             auto end = std::chrono::high_resolution_clock::now();
             if (std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count() > 200000) {
                 std::cout << "a timeout has occurred\n";
-                ws.send("timeout");
+                assert(std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()  < 20);
                 break;
             }
             std::this_thread::sleep_for(50ms);
         }
+
+        new_connection->finished.store(true);
+
         delete new_connection;
-        ws.send("Message finished\n");
 
         std::cout << "MESSAGE OVER" << "\n\n";
         ws.close();

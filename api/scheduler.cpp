@@ -4,6 +4,7 @@ using namespace std::literals::chrono_literals;
 
 uint32_t request_size = 12;
 
+uint32_t granularity_x = 100;
 
 
 extern VideoFormat* video_format_1;
@@ -47,19 +48,12 @@ void Connection::InitialWork() {
     std::cout << "FRAME INDEX ORIGINAL: " << frame_index << "\n";
 
 
+    initialized = true;
 
     count_connections++;
 
     std::cout << "Connections Count " << count_connections << "\n";
-
-    start_time = std::chrono::high_resolution_clock::now();
-    std::cout << "some initial work, id: " << id << "\n";
 }
-
-bool Connection::Finished() { 
-    return finished;
-}
-
 
 // returns true if processed all frames
 bool Connection::GetFrames(uint32_t num_frames) { 
@@ -71,6 +65,7 @@ bool Connection::GetFrames(uint32_t num_frames) {
     else {
         request_info.number_frames -= num_frames;
     }
+
     video_format->ProcessFrames(frame_index, num_frames, *socket);
 
     frame_index += num_frames;
@@ -89,22 +84,26 @@ Connection* Scheduler::AddNewRequest(RequestInfo request_info, httplib::ws::WebS
     Connection* connection = new Connection(request_info, ws);
     connection_mutex.lock();
     connections.emplace_back(connection);
+    std::cout << "ADD ----- num connections: " << connections.size() << "\n";
     connection_mutex.unlock();
     return connection;
 }
 
 void Scheduler::Run() {
     while (true) {
-        LST();
+        // decides which scheduler is active
+        //LST();
+        PRQ();
     }
 }
 
 
+// implementation of FIFO scheduler
 void Scheduler::PRQ() {
     for (int i = 0; i < connections.size(); ++i) {
         Connection* connection = connections[i];
         connection->InitialWork();
-        connection->GetFrames(1000000000); // max number to send all set at once
+        connection->GetFrames(1000000000); // max number to send all frames at once
  
         connection_mutex.lock();
         connections.erase(connections.begin() + i);
@@ -113,37 +112,38 @@ void Scheduler::PRQ() {
 
 }
 
+//implementation of preempting scheduler called "LST"
 void Scheduler::LST() {
-
+    // finding minimum of sent frames to connection time ratio
     double frame_to_duration = 100000000;
-    int index = -1;
-
-    for (int i = 0; i < connections.size(); ++i) {
-        Connection* connection = connections[i];
-        if (!connection->initialized) {
-            connection->InitialWork();
-        }
-        auto time_now = std::chrono::high_resolution_clock::now();
-        uint32_t time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>
-        (time_now - connection->start_time).count();
-
-        std::cout << "TIME ELAPSED: " << time_elapsed << "\n";
-        std::cout << "FRAMES SENT: " << ((double) connection->frames_sent) << "\n";
-
-        double ratio = ((double) connection->frames_sent) / time_elapsed;
-        std::cout << "RATIO: " << ratio << "\n";
-        if (ratio < frame_to_duration) {
-            frame_to_duration = ratio;
-            index = i;
+    Connection* chosen_connection = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(connection_mutex);
+        for (auto connection : connections) {
+            if (!connection->initialized) {
+                connection->InitialWork();
+            }
+            auto time_now = std::chrono::high_resolution_clock::now();
+            uint32_t time_elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(time_now - connection->start_time).count();
+            double ratio = ((double) connection->frames_sent) / (time_elapsed + 1);
+            if (ratio < frame_to_duration) {
+                frame_to_duration = ratio;
+                chosen_connection = connection;
+            }
         }
     }
-    std::cout << "index: " << index << "\n";
-    std::cout << "num connections: " << connections.size() << "\n";
-    if (index != -1) {
-        if(connections[index]->GetFrames(100)) { // frames are sent
-            connection_mutex.lock();
-            connections.erase(connections.begin() + index);
-            connection_mutex.unlock();
+
+    if (chosen_connection != nullptr) { // will be nullptr iff. no connection in queue
+\        // if connection timeout in callback = 200s pass, or all frames sent -> remove from queue
+        if(chosen_connection->finished.load() || chosen_connection->GetFrames(granularity_x)) {
+            chosen_connection->finished.store(true);
+            std::lock_guard<std::mutex> lock(connection_mutex);
+            auto it = std::find(connections.begin(), connections.end(), chosen_connection);
+            std::cout << "REMOVE ----- num connections: " << connections.size() << "\n";
+
+            if (it != connections.end()) {
+                connections.erase(it);
+            }
         }
     }
 }

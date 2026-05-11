@@ -7,6 +7,8 @@ submit_button.addEventListener("click", Start_Stream);
 
 let second_limit = 5000;
 
+let granularity = 100
+
 // 24 fps * 20 seconds
 let frames_per_call = 20 * 24;
 
@@ -46,7 +48,7 @@ async function ReadSet(second) {
       console.log("Socket opened");
 
       // request frames
-      let arr = new Uint32Array([second, frames_per_call, 1]);
+      let arr = new Uint32Array([second, frames_per_call, granularity]);
       socket.send(arr.buffer);
     });
 

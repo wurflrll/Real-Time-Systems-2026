@@ -72,7 +72,7 @@ class VideoFormat {
 
     uint32_t GetFrameIndex(double time_stamp);
 
-    void ProcessFrames(uint32_t frame_index, uint32_t number_frames, httplib::ws::WebSocket &ws);
-
     void AddHeader(uint8_t* buffer_ptr);
+    
+    void ProcessFrames(uint32_t frame_index, uint32_t number_frames, httplib::ws::WebSocket &ws);
 };
